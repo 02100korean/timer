@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시험 타이머 및 시계</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.3);
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col md:flex-row transition-colors duration-300 overflow-x-hidden select-none">
+
+    <!-- 메인 디스플레이 영역 (설정 요소 없음, 오직 시계/타이머와 메모장만 전체 화면에 집중 표시) -->
+    <div class="flex-1 flex flex-col justify-between p-4 md:p-8 min-h-screen transition-all relative">
+        
+        <!-- 상단: 시계 이름 제목 (박스 테두리 없이 깔끔하게 타이틀만 노출) 및 사이드바 토글 아이콘 버튼 -->
+        <header class="w-full max-w-5xl mx-auto flex items-center justify-between gap-4 mb-2">
+            <h1 id="main-title-display" class="font-bold text-2xl md:text-3xl text-slate-900 dark:text-white tracking-tight">
+                시험 시간표
+            </h1>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleSidebar()" class="p-2.5 rounded-xl bg-slate-200 dark:bg-slate-900 hover:bg-slate-300 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-800 transition flex items-center justify-center shadow-sm" title="설정 메뉴 켜기/끄기">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- 중앙 화면: 현재 시각 또는 타이머 (그라데이션 없이 단색 깔끔한 숫자 표현) -->
+        <main class="w-full max-w-5xl mx-auto flex-1 flex flex-col items-center justify-center my-2">
+
+            <!-- 1. 현재 시각 디스플레이 -->
+            <div id="view-clock-container" class="w-full flex flex-col items-center justify-center py-6 hidden">
+                <!-- 날짜 표시 -->
+                <div id="clock-date" class="text-slate-600 dark:text-slate-400 font-semibold text-xl md:text-3xl mb-3 tracking-wide">2026년 10월 16일 금요일</div>
+                <!-- 시간 숫자 (그라데이션 제거, 단색 깔끔한 폰트) -->
+                <div class="flex items-baseline justify-center gap-2 md:gap-4">
+                    <div id="clock-ampm" class="text-indigo-600 dark:text-indigo-400 font-extrabold text-2xl md:text-5xl tracking-widest uppercase">오전</div>
+                    <div id="clock-time" class="text-6xl sm:text-8xl md:text-9xl font-black tracking-wider text-slate-900 dark:text-white">07:52</div>
+                </div>
+            </div>
+
+            <!-- 2. 타이머 디스플레이 -->
+            <div id="view-timer-container" class="w-full flex flex-col items-center justify-center py-6">
+                <!-- 남은 시간 숫자 (59분 이하일 때는 시 숨김, 1시간 이상일 때만 시:분:초 표시) -->
+                <div id="timer-display" class="text-6xl sm:text-8xl md:text-9xl font-black tracking-wider text-slate-900 dark:text-white py-4 text-center">00:00</div>
+
+                <!-- 타이머 제어 버튼 (미니멀하게 하단 배치) -->
+                <div class="flex items-center gap-4 mt-8">
+                    <button id="btn-timer-toggle" onclick="toggleTimer()" class="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl shadow-lg transition transform active:scale-95 text-lg">시작</button>
+                    <button onclick="resetTimer()" class="px-6 py-3.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-2xl shadow transition transform active:scale-95 text-lg border border-slate-300 dark:border-slate-700">
+                        초기화
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- 하단: 주의사항 및 메모장 (전체 높이의 40% 수준, 사이드바에서 설정한 폰트 크기 및 색상 즉시 반영) -->
+        <footer class="w-full max-w-5xl mx-auto mt-4 bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col backdrop-blur-sm" style="min-height: 220px; height: 38vh;">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-200 dark:border-slate-800">
+                <span class="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    주의사항 및 메모장
+                </span>
+                <span class="text-xs text-slate-400">우측 사이드바에서 글자 크기 및 색상 변경 가능</span>
+            </div>
+            <!-- 편집 가능한 메모 영역 (다크 모드 디폴트: 하얀색 / 브라이트 모드 디폴트: 네이비) -->
+            <div id="memo-editor" contenteditable="true" class="flex-1 w-full bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 overflow-y-auto shadow-inner transition-all" style="font-size: 24pt; color: #ffffff; line-height: 1.5;" placeholder="주의사항이나 안내 문구를 입력하세요.">시험 중 전자기기 소지 금지</div>
+        </footer>
+
+    </div>
+
+    <!-- 우측 설정용 사이드바 (모든 설정 관련 내용과 컨트롤은 여기에만 위치, 토글 가능) -->
+    <aside id="settings-sidebar" class="w-full md:w-80 lg:w-96 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-6 shadow-2xl overflow-y-auto z-20 transition-all duration-300">
+        
+        <!-- 사이드바 헤더 & 테마 전환 -->
+        <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+            <h2 class="font-bold text-xl text-slate-900 dark:text-white flex items-center gap-2">
+                <span>⚙️</span> 제어판 및 설정
+            </h2>
+            <!-- 테마 전환 버튼 (브라이트: 네이비톤 / 다크: 블랙톤) -->
+            <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:scale-105 transition text-slate-800 dark:text-slate-200 shadow-sm" title="테마 전환">
+                <svg id="theme-icon-dark" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <svg id="theme-icon-light" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            </button>
+        </div>
+
+        <!-- 1. 시계 이름 설정 -->
+        <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">시계 제목 설정</label>
+            <input type="text" id="sidebar-title-input" value="시험 시간표" oninput="updateMainTitle(this.value)" class="w-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 focus:outline-none focus:border-indigo-500 text-sm">
+        </div>
+
+        <!-- 2. 화면 보기 모드 선택 (현재 시간 / 타이머) -->
+        <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">화면 모드 선택</label>
+            <div class="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl border border-slate-300 dark:border-slate-700">
+                <button id="btn-view-clock" onclick="switchView('clock')" class="py-2 rounded-lg font-bold text-sm transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200">현재 시각</button>
+                <button id="btn-view-timer" onclick="switchView('timer')" class="py-2 rounded-lg font-bold text-sm transition bg-indigo-600 text-white shadow">타이머</button>
+            </div>
+        </div>
+
+        <!-- 3. 현재 시각 세부 설정 (12시간 / 24시간 선택) -->
+        <div id="settings-clock-group" class="space-y-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/80 hidden">
+            <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">현재 시각 형식</label>
+            <div class="grid grid-cols-2 gap-2">
+                <label class="flex items-center justify-center gap-2 p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700 cursor-pointer text-sm font-medium">
+                    <input type="radio" name="clock-type" value="12" checked onchange="updateClockSettings()" class="text-indigo-600 focus:ring-indigo-500"> 12시간제
+                </label>
+                <label class="flex items-center justify-center gap-2 p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700 cursor-pointer text-sm font-medium">
+                    <input type="radio" name="clock-type" value="24" onchange="updateClockSettings()" class="text-indigo-600 focus:ring-indigo-500"> 24시간제
+                </label>
+            </div>
+            <div class="flex items-center justify-between pt-2">
+                <span class="text-xs text-slate-600 dark:text-slate-400">초 단위 표시</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="clock-show-seconds" onchange="updateClockSettings()" class="sr-only peer">
+                    <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                </label>
+            </div>
+        </div>
+
+        <!-- 4. 타이머 세부 설정 (프리셋, 직접 입력, 알람) -->
+        <div id="settings-timer-group" class="space-y-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/80">
+            <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">타이머 빠른 설정</label>
+            <div class="grid grid-cols-3 gap-1.5">
+                <button onclick="setTimerMinutes(3)" class="py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 transition">3분</button>
+                <button onclick="setTimerMinutes(5)" class="py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 transition">5분</button>
+                <button onclick="setTimerMinutes(10)" class="py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 transition">10분</button>
+                <button onclick="setTimerMinutes(20)" class="py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 transition">20분</button>
+                <button onclick="setTimerMinutes(30)" class="py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 transition">30분</button>
+                <button onclick="setTimerMinutes(40)" class="py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 transition">40분</button>
+                <button onclick="setTimerMinutes(50)" class="py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 transition">50분</button>
+                <button onclick="setTimerMinutes(60)" class="py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 transition">60분</button>
+                <button onclick="setTimerMinutes(70)" class="py-1.5 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 transition">70분</button>
+            </div>
+
+            <!-- 직접 입력 -->
+            <div class="space-y-1.5">
+                <label class="text-xs font-medium text-slate-600 dark:text-slate-400">시간 직접 입력</label>
+                <div id="timer-inputs-wrapper" class="grid grid-cols-3 gap-2">
+                    <div class="flex items-center gap-1 bg-white dark:bg-slate-800 p-1.5 rounded-xl border border-slate-300 dark:border-slate-700">
+                        <input type="number" id="input-h" min="0" max="23" value="0" class="w-full text-center bg-transparent text-slate-900 dark:text-white font-bold focus:outline-none" onchange="syncInputToTimer()">
+                        <span class="text-xs text-slate-500">시간</span>
+                    </div>
+                    <div class="flex items-center gap-1 bg-white dark:bg-slate-800 p-1.5 rounded-xl border border-slate-300 dark:border-slate-700">
+                        <input type="number" id="input-m" min="0" max="59" value="10" class="w-full text-center bg-transparent text-slate-900 dark:text-white font-bold focus:outline-none" onchange="syncInputToTimer()">
+                        <span class="text-xs text-slate-500">분</span>
+                    </div>
+                    <div class="flex items-center gap-1 bg-white dark:bg-slate-800 p-1.5 rounded-xl border border-slate-300 dark:border-slate-700">
+                        <input type="number" id="input-s" min="0" max="59" value="0" class="w-full text-center bg-transparent text-slate-900 dark:text-white font-bold focus:outline-none" onchange="syncInputToTimer()">
+                        <span class="text-xs text-slate-500">초</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 오디오 알람 설정 -->
+            <div class="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-medium text-slate-600 dark:text-slate-400">오디오 알람 켜기/끄기</label>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="alarm-enabled" checked class="sr-only peer">
+                        <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                    </label>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-slate-600 dark:text-slate-400">알람 소리</span>
+                    <select id="alarm-sound-select" class="flex-1 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500">
+                        <option value="chime">딩동댕</option>
+                        <option value="beep">비퍼음</option>
+                        <option value="bell">잔잔한 음악</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. 주의사항 메모장 서식 설정 (글자 크기 및 색상 변경) -->
+        <div class="space-y-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/80">
+            <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">주의사항 메모장 서식</label>
+            
+            <!-- 글자 크기 조절 슬라이더 -->
+            <div class="space-y-1">
+                <div class="flex justify-between text-xs text-slate-600 dark:text-slate-400">
+                    <span>글자 크기</span>
+                    <span id="memo-fontsize-label">24pt</span>
+                </div>
+                <input type="range" id="memo-fontsize-range" min="16" max="48" value="24" oninput="changeMemoFontSize(this.value)" class="w-full accent-indigo-600 cursor-pointer">
+            </div>
+
+            <!-- 글자 색상 팔레트 (하얀색 추가 및 일부분 변경 지원) -->
+            <div class="space-y-1.5 pt-1">
+                <span class="text-xs text-slate-600 dark:text-slate-400">글자 색상 변경 (드래그 선택 후 적용)</span>
+                <div class="flex items-center gap-2">
+                    <button onclick="setForeColor('#ffffff')" class="w-7 h-7 rounded-full bg-white hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="하얀색"></button>
+                    <button onclick="setForeColor('#0f172a')" class="w-7 h-7 rounded-full bg-slate-900 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="네이비/검정"></button>
+                    <button onclick="setForeColor('#ef4444')" class="w-7 h-7 rounded-full bg-red-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="빨간색"></button>
+                    <button onclick="setForeColor('#3b82f6')" class="w-7 h-7 rounded-full bg-blue-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="파란색"></button>
+                    <button onclick="setForeColor('#10b981')" class="w-7 h-7 rounded-full bg-emerald-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="초록색"></button>
+                    <button onclick="setForeColor('#eab308')" class="w-7 h-7 rounded-full bg-yellow-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="노란색"></button>
+                    <button onclick="setForeColor('#a855f7')" class="w-7 h-7 rounded-full bg-purple-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="보라색"></button>
+                </div>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- 자바스크립트 로직 -->
+    <script>
+        // 사이드바 토글 함수
+        function toggleSidebar() {
+            const sidebar = document.getElementById('settings-sidebar');
+            if (sidebar.classList.contains('hidden')) {
+                sidebar.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('hidden');
+            }
+        }
+
+        // 테마 전환 (다크/브라이트 및 메모장 디폴트 글자 색상 자동 스위칭)
+        function toggleTheme() {
+            const htmlEl = document.documentElement;
+            const memoEditor = document.getElementById('memo-editor');
+            if (htmlEl.classList.contains('dark')) {
+                htmlEl.classList.remove('dark');
+                // 브라이트 모드 기본 글자색: 네이비 (#0f172a)
+                memoEditor.style.color = '#0f172a';
+            } else {
+                htmlEl.classList.add('dark');
+                // 다크 모드 기본 글자색: 하얀색 (#ffffff)
+                memoEditor.style.color = '#ffffff';
+            }
+        }
+
+        // 시계 이름 연동
+        function updateMainTitle(val) {
+            document.getElementById('main-title-display').innerText = val || '시계';
+        }
+
+        // 뷰 전환 로직 (현재 시각 / 타이머 단독 표시 및 설정 패널 연동)
+        function switchView(view) {
+            const clockContainer = document.getElementById('view-clock-container');
+            const timerContainer = document.getElementById('view-timer-container');
+            const settingsClockGroup = document.getElementById('settings-clock-group');
+            const settingsTimerGroup = document.getElementById('settings-timer-group');
+            const btnClock = document.getElementById('btn-view-clock');
+            const btnTimer = document.getElementById('btn-view-timer');
+
+            if (view === 'clock') {
+                clockContainer.classList.remove('hidden');
+                timerContainer.classList.add('hidden');
+                settingsClockGroup.classList.remove('hidden');
+                settingsTimerGroup.classList.add('hidden');
+                btnClock.className = "py-2 rounded-lg font-bold text-sm transition bg-indigo-600 text-white shadow";
+                btnTimer.className = "py-2 rounded-lg font-bold text-sm transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200";
+            } else {
+                clockContainer.classList.add('hidden');
+                timerContainer.classList.remove('hidden');
+                settingsClockGroup.classList.add('hidden');
+                settingsTimerGroup.classList.remove('hidden');
+                btnTimer.className = "py-2 rounded-lg font-bold text-sm transition bg-indigo-600 text-white shadow";
+                btnClock.className = "py-2 rounded-lg font-bold text-sm transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200";
+            }
+        }
+
+        // 현재 시각 로직 (12/24시간제, 오전/오후 동적 표시)
+        function updateClockSettings() {
+            updateClock();
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const date = now.getDate();
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            const dayName = days[now.getDay()];
+
+            document.getElementById('clock-date').innerText = `${year}년 ${month}월 ${date}일 ${dayName}요일`;
+
+            let hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            let clockTypeVal = '12';
+            const typeRadios = document.getElementsByName('clock-type');
+            for (const r of typeRadios) {
+                if (r.checked) {
+                    clockTypeVal = r.value;
+                    break;
+                }
+            }
+
+            const showSec = document.getElementById('clock-show-seconds').checked;
+            const ampmEl = document.getElementById('clock-ampm');
+
+            let timeStr = '';
+            if (clockTypeVal === '12') {
+                const ampm = hours >= 12 ? '오후' : '오전';
+                ampmEl.innerText = ampm;
+                ampmEl.classList.remove('hidden');
+
+                hours = hours % 12;
+                hours = hours ? hours : 12; // 0시 -> 12시
+
+                const hStr = String(hours).padStart(2, '0');
+                const mStr = String(minutes).padStart(2, '0');
+                const sStr = String(seconds).padStart(2, '0');
+
+                timeStr = showSec ? `${hStr}:${mStr}:${sStr}` : `${hStr}:${mStr}`;
+            } else {
+                // 24시간제일 때는 오전/오후 글자 완전 삭제 (숨김)
+                ampmEl.innerText = '';
+                ampmEl.classList.add('hidden');
+
+                const hStr = String(hours).padStart(2, '0');
+                const mStr = String(minutes).padStart(2, '0');
+                const sStr = String(seconds).padStart(2, '0');
+
+                timeStr = showSec ? `${hStr}:${mStr}:${sStr}` : `${hStr}:${mStr}`;
+            }
+
+            document.getElementById('clock-time').innerText = timeStr;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // 타이머 로직 (59분 이하시 '시' 숨김)
+        let totalSeconds = 600; // 기본 10분
+        let timerInterval = null;
+        let isRunning = false;
+
+        function setTimerMinutes(mins) {
+            if (isRunning) return;
+            totalSeconds = mins * 60;
+            updateInputsFromTotal();
+            renderTimerDisplay();
+        }
+
+        function syncInputToTimer() {
+            if (isRunning) return;
+            const h = parseInt(document.getElementById('input-h').value) || 0;
+            const m = parseInt(document.getElementById('input-m').value) || 0;
+            const s = parseInt(document.getElementById('input-s').value) || 0;
+            totalSeconds = (h * 3600) + (m * 60) + s;
+            renderTimerDisplay();
+        }
+
+        function updateInputsFromTotal() {
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+            document.getElementById('input-h').value = h;
+            document.getElementById('input-m').value = m;
+            document.getElementById('input-s').value = s;
+        }
+
+        function renderTimerDisplay() {
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+
+            const mStr = String(m).padStart(2, '0');
+            const sStr = String(s).padStart(2, '0');
+
+            const displayEl = document.getElementById('timer-display');
+            if (h > 0) {
+                const hStr = String(h).padStart(2, '0');
+                displayEl.innerText = `${hStr}:${mStr}:${sStr}`;
+            } else {
+                displayEl.innerText = `${mStr}:${sStr}`;
+            }
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('btn-timer-toggle');
+            const inputsWrapper = document.getElementById('timer-inputs-wrapper');
+
+            if (!isRunning) {
+                if (totalSeconds <= 0) return;
+                isRunning = true;
+                btn.innerText = "일시정지";
+                btn.className = "px-8 py-3.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-2xl shadow-lg transition transform active:scale-95 text-lg";
+                inputsWrapper.classList.add('opacity-50', 'pointer-events-none');
+
+                timerInterval = setInterval(() => {
+                    if (totalSeconds > 0) {
+                        totalSeconds--;
+                        updateInputsFromTotal();
+                        renderTimerDisplay();
+                    }
+                    if (totalSeconds <= 0) {
+                        clearInterval(timerInterval);
+                        isRunning = false;
+                        btn.innerText = "시작";
+                        btn.className = "px-8 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl shadow-lg transition transform active:scale-95 text-lg";
+                        inputsWrapper.classList.remove('opacity-50', 'pointer-events-none');
+                        playAlarmSound();
+                    }
+                }, 1000);
+            } else {
+                clearInterval(timerInterval);
+                isRunning = false;
+                btn.innerText = "이어하기";
+                btn.className = "px-8 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl shadow-lg transition transform active:scale-95 text-lg";
+                inputsWrapper.classList.remove('opacity-50', 'pointer-events-none');
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            syncInputToTimer();
+            renderTimerDisplay();
+            const btn = document.getElementById('btn-timer-toggle');
+            btn.innerText = "시작";
+            btn.className = "px-8 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl shadow-lg transition transform active:scale-95 text-lg";
+            document.getElementById('timer-inputs-wrapper').classList.remove('opacity-50', 'pointer-events-none');
+        }
+
+        // 오디오 알람 기능 (잔잔한 음악, 비퍼음, 딩동댕)
+        function playAlarmSound() {
+            const isEnabled = document.getElementById('alarm-enabled').checked;
+            if (!isEnabled) return;
+
+            const soundType = document.getElementById('alarm-sound-select').value;
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            if (soundType === 'beep') {
+                playTone(audioCtx, 587.33, 0, 0.2);
+                playTone(audioCtx, 587.33, 0.3, 0.2);
+                playTone(audioCtx, 587.33, 0.6, 0.4);
+            } else if (soundType === 'chime') {
+                playTone(audioCtx, 523.25, 0, 0.3);  
+                playTone(audioCtx, 659.25, 0.2, 0.3); 
+                playTone(audioCtx, 783.99, 0.4, 0.5); 
+            } else if (soundType === 'bell') {
+                playTone(audioCtx, 659.25, 0, 0.4); 
+                playTone(audioCtx, 880, 0.3, 0.6);    
+            }
+        }
+
+        function playTone(audioCtx, freq, delay, duration) {
+            setTimeout(() => {
+                try {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+
+                    gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + duration);
+                } catch (e) {
+                    console.error(e);
+                }
+            }, delay * 1000);
+        }
+
+        // 메모장 서식 설정 (글자 크기 및 색상 변경)
+        function changeMemoFontSize(size) {
+            document.getElementById('memo-editor').style.fontSize = size + 'pt';
+            document.getElementById('memo-fontsize-label').innerText = size + 'pt';
+        }
+
+        function setForeColor(color) {
+            document.execCommand('foreColor', false, color);
+            document.getElementById('memo-editor').focus();
+        }
+    </script>
+
+</body>
+</html>
