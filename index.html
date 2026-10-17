@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>시험 타이머 및 시계 v2.0</title>
+    <title>시험 타이머 및 시계 v2.1</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -29,22 +29,21 @@
             background: rgba(59, 130, 246, 0.4);
             border-radius: 9999px;
         }
-        /* 모바일에서 시계 숫자가 가로로 넘치지 않도록 유연하게 반응 */
-        @media (max-width: 767px) {
-            .responsive-clock-num {
-                font-size: min(8rem, 20vw) !important;
-            }
+        /* 시계 숫자 공통 스타일 및 슬라이더 크기 제어 */
+        .clock-num-text {
+            line-height: 1;
+            font-size: var(--clock-font-size, 8rem);
         }
     </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-screen w-screen overflow-hidden flex flex-col select-none transition-colors duration-300">
 
-    <div id="app-container" class="flex-1 flex flex-col h-full w-full p-2.5 md:p-5 gap-2.5 overflow-hidden">
+    <div id="app-container" class="flex-1 flex flex-col h-full w-full p-2 md:p-5 gap-2 overflow-hidden relative">
         
-        <!-- 상단 헤더: 시계 제목 및 설정 사이드바 열기 아이콘 -->
-        <header id="main-header" class="w-full flex items-center justify-between shrink-0 px-1 gap-3">
+        <!-- 상단 헤더: 제목(선택 표시) 및 설정 사이드바 열기 아이콘 -->
+        <header id="main-header" class="w-full flex items-center justify-between shrink-0 px-1 gap-2">
             <div id="title-wrapper" class="flex-1 flex justify-center">
-                <input type="text" id="sidebar-title-input" value="시험 시간표" oninput="updateMainTitle(this.value)" class="w-full bg-transparent hover:bg-slate-200/50 dark:hover:bg-slate-900/50 focus:bg-white dark:focus:bg-slate-900 text-slate-900 dark:text-white font-bold text-lg md:text-2xl px-4 py-1.5 rounded-2xl border border-transparent focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none transition shadow-none" style="text-align: center;">
+                <input type="text" id="sidebar-title-input" value="시험 시간표" oninput="updateMainTitle(this.value)" class="w-full bg-transparent hover:bg-slate-200/50 dark:hover:bg-slate-900/50 focus:bg-white dark:focus:bg-slate-900 text-slate-900 dark:text-white font-bold text-base md:text-2xl px-3 py-1 md:py-1.5 rounded-2xl border border-transparent focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none transition shadow-none" style="text-align: center;">
             </div>
             <div class="flex items-center gap-2 shrink-0">
                 <button onclick="toggleSidebar()" class="p-2 md:p-2.5 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-blue-500/60 dark:border-blue-500/60 transition shadow-sm" title="설정">
@@ -56,50 +55,50 @@
         <!-- 플레이어 위치 '시계 위' 슬롯 -->
         <div id="wrapper-slot-top" class="w-full flex flex-col shrink-0"></div>
 
-        <!-- 중앙 콘텐츠 영역: 모바일에서는 시계/타이머가 전체 화면을 가득 채움 -->
-        <div id="content-layout-wrapper" class="flex-1 flex flex-col gap-2.5 overflow-hidden">
+        <!-- 중앙 콘텐츠 영역 -->
+        <div id="content-layout-wrapper" class="flex-1 flex flex-col gap-2 overflow-hidden">
             
             <!-- 시계/타이머 메인 패널 래퍼 -->
-            <div id="main-panel-wrapper" class="flex-1 flex flex-col gap-2.5 overflow-hidden" style="flex: 1;">
+            <div id="main-panel-wrapper" class="flex-1 flex flex-col gap-2 overflow-hidden" style="flex: 1; width: 100%;">
                 
                 <!-- 시계/타이머 메인 패널 -->
-                <div id="main-display-panel" class="flex-1 flex flex-col items-center justify-center p-3 md:p-6 bg-white dark:bg-slate-900 border border-blue-500/60 dark:border-blue-500/60 rounded-3xl shadow-lg relative overflow-hidden" style="flex: 1;">
+                <div id="main-display-panel" class="flex-1 flex flex-col items-center justify-center p-2 sm:p-4 md:p-6 bg-white dark:bg-slate-900 border border-blue-500/60 dark:border-blue-500/60 rounded-3xl shadow-lg relative overflow-hidden" style="flex: 1;">
                     
                     <!-- 1. 현재 시각 뷰 -->
                     <div id="view-clock-container" class="w-full flex flex-col items-center justify-center hidden">
-                        <div id="clock-date" class="text-slate-500 dark:text-slate-400 font-semibold text-base md:text-xl mb-1 tracking-wide">2026년 10월 18일 일요일</div>
+                        <div id="clock-date" class="text-slate-500 dark:text-slate-400 font-semibold text-sm sm:text-base md:text-xl mb-1 tracking-wide">2026년 10월 18일 일요일</div>
                         <div class="flex items-baseline justify-center gap-2 md:gap-3">
-                            <div id="clock-ampm" class="text-blue-600 dark:text-blue-400 font-extrabold text-xl md:text-3xl tracking-widest uppercase">오전</div>
-                            <div id="clock-time" class="responsive-clock-num font-black tracking-wider text-slate-900 dark:text-white" style="font-size: 8rem; line-height: 1;">00:00</div>
+                            <div id="clock-ampm" class="text-blue-600 dark:text-blue-400 font-extrabold text-lg sm:text-xl md:text-3xl tracking-widest uppercase">오전</div>
+                            <div id="clock-time" class="clock-num-text font-black tracking-wider text-slate-900 dark:text-white">00:00</div>
                         </div>
                     </div>
 
                     <!-- 2. 단일 타이머 뷰 (기본 화면 10:00) -->
                     <div id="view-timer-container" class="w-full flex flex-col items-center justify-center">
-                        <div id="timer-inner-layout" class="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-8">
-                            <div id="timer-display" contenteditable="true" onblur="syncEditableTimer(this.innerText)" class="responsive-clock-num font-black tracking-wider text-slate-900 dark:text-white py-1 sm:py-2 text-center outline-none border-b-2 border-dashed border-transparent hover:border-blue-400 transition" style="font-size: 8rem; line-height: 1;" title="클릭하여 직접 시간을 입력할 수 있습니다">10:00</div>
+                        <div id="timer-inner-layout" class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 md:gap-8">
+                            <div id="timer-display" contenteditable="true" onblur="syncEditableTimer(this.innerText)" class="clock-num-text font-black tracking-wider text-slate-900 dark:text-white py-1 sm:py-2 text-center outline-none border-b-2 border-dashed border-transparent hover:border-blue-400 transition" title="클릭하여 직접 시간을 입력할 수 있습니다">10:00</div>
 
                             <div id="timer-controls-wrapper" class="flex flex-row sm:flex-col items-center justify-center gap-2 sm:gap-2.5">
-                                <button id="btn-timer-toggle" onclick="toggleTimer()" class="w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center">시작</button>
-                                <button onclick="resetTimer()" class="w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold rounded-2xl border border-blue-600 dark:border-blue-500 shadow transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center">초기화</button>
+                                <button id="btn-timer-toggle" onclick="toggleTimer()" class="w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center">시작</button>
+                                <button onclick="resetTimer()" class="w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold rounded-2xl border border-blue-600 dark:border-blue-500 shadow transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center">초기화</button>
                             </div>
                         </div>
                     </div>
 
                     <!-- 3. 연속 타이머 뷰 -->
                     <div id="view-seq-timer-container" class="w-full flex flex-col items-center justify-center hidden">
-                        <div class="mb-2 md:mb-3 px-3 sm:px-4 py-1 bg-blue-50 dark:bg-blue-950/50 border border-blue-500/40 rounded-full flex items-center gap-2">
-                            <span id="seq-step-badge" class="text-xs font-bold text-blue-600 dark:text-blue-400">타이머 1 / 6</span>
+                        <div class="mb-2 md:mb-3 px-3 sm:px-4 py-0.5 sm:py-1 bg-blue-50 dark:bg-blue-950/50 border border-blue-500/40 rounded-full flex items-center gap-2">
+                            <span id="seq-step-badge" class="text-[11px] sm:text-xs font-bold text-blue-600 dark:text-blue-400">타이머 1 / 6</span>
                             <span class="text-xs text-slate-400">|</span>
-                            <span id="seq-mode-badge" class="text-xs font-semibold text-slate-600 dark:text-slate-300">자동 진행</span>
+                            <span id="seq-mode-badge" class="text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-300">자동 진행</span>
                         </div>
 
-                        <div id="seq-timer-inner-layout" class="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-8">
-                            <div id="seq-timer-display" class="responsive-clock-num font-black tracking-wider text-slate-900 dark:text-white py-1 sm:py-2 text-center" style="font-size: 8rem; line-height: 1;">03:02</div>
+                        <div id="seq-timer-inner-layout" class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 md:gap-8">
+                            <div id="seq-timer-display" class="clock-num-text font-black tracking-wider text-slate-900 dark:text-white py-1 sm:py-2 text-center">03:02</div>
 
                             <div id="seq-timer-controls-wrapper" class="flex flex-row sm:flex-col items-center justify-center gap-2 sm:gap-2.5">
-                                <button id="btn-seq-toggle" onclick="toggleSeqTimer()" class="w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center">시작</button>
-                                <button onclick="resetSeqTimer()" class="w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold rounded-2xl border border-blue-600 dark:border-blue-500 shadow transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center">초기화</button>
+                                <button id="btn-seq-toggle" onclick="toggleSeqTimer()" class="w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center">시작</button>
+                                <button onclick="resetSeqTimer()" class="w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold rounded-2xl border border-blue-600 dark:border-blue-500 shadow transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center">초기화</button>
                             </div>
                         </div>
                     </div>
@@ -111,8 +110,8 @@
 
             </div>
 
-            <!-- 메모장 박스: PC(md 이상)에서만 표시되고 모바일에서는 완벽하게 숨김 -->
-            <div id="memo-container" class="hidden md:flex bg-white dark:bg-slate-900 border border-blue-500/60 dark:border-blue-500/60 rounded-3xl p-3 md:p-4 shadow-lg flex-col shrink-0 transition-all" style="height: 35vh; width: 100%;">
+            <!-- 메모장 박스: PC(데스크탑 환경)에서만 나타나며 모바일 기기(가로/세로 모두)에서는 완전 숨김 -->
+            <div id="memo-container" class="hidden bg-white dark:bg-slate-900 border border-blue-500/60 dark:border-blue-500/60 rounded-3xl p-3 md:p-4 shadow-lg flex-col shrink-0 transition-all" style="height: 35vh; width: 100%;">
                 <div id="memo-editor" contenteditable="true" class="flex-1 w-full bg-slate-50 dark:bg-slate-950/40 border border-blue-400/40 dark:border-blue-500/40 rounded-2xl p-3 md:p-4 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 overflow-y-auto shadow-inner transition-all" style="font-size: 24pt; line-height: 1.4;" placeholder="주의사항이나 안내 문구를 입력하세요.">시험 중 <span style="color: #eab308;">전자기기 소지 금지</span></div>
             </div>
 
@@ -123,12 +122,12 @@
 
     </div>
 
-    <!-- 설정 사이드바 (v2.0) -->
+    <!-- 설정 사이드바 (v2.1) -->
     <aside id="settings-sidebar" class="fixed top-0 right-0 h-full w-80 md:w-96 bg-white dark:bg-slate-900 border-l border-blue-500/60 dark:border-blue-500/60 p-4 md:p-5 flex flex-col gap-4 shadow-2xl overflow-y-auto z-50 transition-transform duration-300 transform translate-x-full">
         
         <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
             <h2 class="font-bold text-base md:text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                <span>⚙️</span> 제어판 및 설정 (v2.0)
+                <span>⚙️</span> 제어판 및 설정 (v2.1)
             </h2>
             <div class="flex items-center gap-2">
                 <button onclick="toggleTheme()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:scale-105 transition text-slate-800 dark:text-slate-200 shadow-sm" title="테마 전환">
@@ -151,45 +150,65 @@
             </div>
         </div>
 
-        <!-- 2. 시계 제목 설정 -->
+        <!-- 2. 시계 제목 설정 (표시 여부 선택 지원) -->
         <div class="space-y-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-blue-400/40 dark:border-blue-500/40">
-            <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">시계 제목 설정</label>
+            <div class="flex items-center justify-between">
+                <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">시계 제목 표시</label>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="title-show-toggle" checked onchange="toggleTitleVisibility(this.checked)" class="sr-only peer">
+                    <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+            </div>
             
-            <div class="space-y-1.5">
-                <span class="text-xs text-slate-600 dark:text-slate-400">정렬</span>
-                <div class="grid grid-cols-3 gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-blue-400/40 dark:border-blue-500/40">
-                    <button onclick="setTitleAlign('left')" id="btn-align-left" class="py-1 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition">왼쪽</button>
-                    <button onclick="setTitleAlign('center')" id="btn-align-center" class="py-1 rounded-lg font-bold text-xs bg-blue-600 text-white shadow transition">중앙</button>
-                    <button onclick="setTitleAlign('right')" id="btn-align-right" class="py-1 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition">오른쪽</button>
+            <div id="title-settings-subgroup" class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <div class="space-y-1.5">
+                    <span class="text-xs text-slate-600 dark:text-slate-400">정렬</span>
+                    <div class="grid grid-cols-3 gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-blue-400/40 dark:border-blue-500/40">
+                        <button onclick="setTitleAlign('left')" id="btn-align-left" class="py-1 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition">왼쪽</button>
+                        <button onclick="setTitleAlign('center')" id="btn-align-center" class="py-1 rounded-lg font-bold text-xs bg-blue-600 text-white shadow transition">중앙</button>
+                        <button onclick="setTitleAlign('right')" id="btn-align-right" class="py-1 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition">오른쪽</button>
+                    </div>
                 </div>
-            </div>
 
-            <div class="space-y-1 pt-1">
-                <div class="flex justify-between text-xs text-slate-600 dark:text-slate-400">
-                    <span>글자 크기</span>
-                    <span id="title-fontsize-label">1.5rem</span>
+                <div class="space-y-1 pt-1">
+                    <div class="flex justify-between text-xs text-slate-600 dark:text-slate-400">
+                        <span>글자 크기</span>
+                        <span id="title-fontsize-label">1.5rem</span>
+                    </div>
+                    <input type="range" id="title-fontsize-range" min="1" max="3" step="0.1" value="1.5" oninput="changeTitleFontSize(this.value)" class="w-full accent-blue-600 cursor-pointer">
                 </div>
-                <input type="range" id="title-fontsize-range" min="1" max="3" step="0.1" value="1.5" oninput="changeTitleFontSize(this.value)" class="w-full accent-blue-600 cursor-pointer">
-            </div>
 
-            <div class="space-y-1.5 pt-1">
-                <span class="text-xs text-slate-600 dark:text-slate-400">글자 색상</span>
-                <div class="flex items-center gap-2">
-                    <button onclick="setTitleColor('#ffffff')" class="w-5 h-5 rounded-full bg-white hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="하얀색"></button>
-                    <button onclick="setTitleColor('#1e293b')" class="w-5 h-5 rounded-full bg-slate-800 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="네이비/진한색"></button>
-                    <button onclick="setTitleColor('#ef4444')" class="w-5 h-5 rounded-full bg-red-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="빨간색"></button>
-                    <button onclick="setTitleColor('#3b82f6')" class="w-5 h-5 rounded-full bg-blue-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="파란색"></button>
-                    <button onclick="setTitleColor('#10b981')" class="w-5 h-5 rounded-full bg-emerald-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="초록색"></button>
-                    <button onclick="setTitleColor('#eab308')" class="w-5 h-5 rounded-full bg-yellow-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="노란색"></button>
-                    <button onclick="setTitleColor('#a855f7')" class="w-5 h-5 rounded-full bg-purple-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="보라색"></button>
+                <div class="space-y-1.5 pt-1">
+                    <span class="text-xs text-slate-600 dark:text-slate-400">글자 색상</span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="setTitleColor('#ffffff')" class="w-5 h-5 rounded-full bg-white hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="하얀색"></button>
+                        <button onclick="setTitleColor('#1e293b')" class="w-5 h-5 rounded-full bg-slate-800 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="네이비/진한색"></button>
+                        <button onclick="setTitleColor('#ef4444')" class="w-5 h-5 rounded-full bg-red-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="빨간색"></button>
+                        <button onclick="setTitleColor('#3b82f6')" class="w-5 h-5 rounded-full bg-blue-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="파란색"></button>
+                        <button onclick="setTitleColor('#10b981')" class="w-5 h-5 rounded-full bg-emerald-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="초록색"></button>
+                        <button onclick="setTitleColor('#eab308')" class="w-5 h-5 rounded-full bg-yellow-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="노란색"></button>
+                        <button onclick="setTitleColor('#a855f7')" class="w-5 h-5 rounded-full bg-purple-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="보라색"></button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 3. 메모장 레이아웃 및 크기 설정 (PC 환경에서만 유효하게 표시) -->
-        <div class="hidden md:block space-y-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-blue-400/40 dark:border-blue-500/40">
+        <!-- 3. 시계 및 타이머 글자 크기 설정 (모바일/PC 완벽 조절) -->
+        <div class="space-y-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-blue-400/40 dark:border-blue-500/40">
+            <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">시계 / 타이머 숫자 크기</label>
+            <div class="space-y-1">
+                <div class="flex justify-between text-xs text-slate-600 dark:text-slate-400">
+                    <span>숫자 크기 조절</span>
+                    <span id="num-fontsize-label">8rem</span>
+                </div>
+                <input type="range" id="num-fontsize-range" min="3" max="22" step="0.5" value="8" oninput="changeNumberFontSize(this.value)" class="w-full accent-blue-600 cursor-pointer">
+            </div>
+        </div>
+
+        <!-- 4. PC 전용 메모장 설정 (모바일 기기에서는 표시 안 함) -->
+        <div id="pc-memo-settings-card" class="space-y-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-blue-400/40 dark:border-blue-500/40">
             <div class="flex items-center justify-between">
-                <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">메모장 표시 여부</label>
+                <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">메모장 표시 (PC 전용)</label>
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="memo-show-toggle" checked onchange="toggleMemoVisibility(this.checked)" class="sr-only peer">
                     <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
@@ -211,6 +230,27 @@
                         <span id="memo-size-label">35%</span>
                     </div>
                     <input type="range" id="memo-size-range" min="15" max="80" value="35" oninput="changeMemoSize(this.value)" class="w-full accent-blue-600 cursor-pointer">
+                </div>
+
+                <div class="space-y-1 pt-1 border-t border-slate-200 dark:border-slate-700">
+                    <div class="flex justify-between text-xs text-slate-600 dark:text-slate-400">
+                        <span>메모장 글자 크기</span>
+                        <span id="memo-fontsize-label">24pt</span>
+                    </div>
+                    <input type="range" id="memo-fontsize-range" min="16" max="48" value="24" oninput="changeMemoFontSize(this.value)" class="w-full accent-blue-600 cursor-pointer">
+                </div>
+
+                <div class="space-y-1.5 pt-1">
+                    <span class="text-xs text-slate-600 dark:text-slate-400">메모장 글자 색상 변경 (드래그 후 적용)</span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="setForeColor('#ffffff')" class="w-5 h-5 rounded-full bg-white hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="하얀색"></button>
+                        <button onclick="setForeColor('#1e293b')" class="w-5 h-5 rounded-full bg-slate-800 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="네이비/진한색"></button>
+                        <button onclick="setForeColor('#ef4444')" class="w-5 h-5 rounded-full bg-red-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="빨간색"></button>
+                        <button onclick="setForeColor('#3b82f6')" class="w-5 h-5 rounded-full bg-blue-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="파란색"></button>
+                        <button onclick="setForeColor('#10b981')" class="w-5 h-5 rounded-full bg-emerald-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="초록색"></button>
+                        <button onclick="setForeColor('#eab308')" class="w-5 h-5 rounded-full bg-yellow-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="노란색"></button>
+                        <button onclick="setForeColor('#a855f7')" class="w-5 h-5 rounded-full bg-purple-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="보라색"></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -321,41 +361,6 @@
             </div>
         </div>
 
-        <!-- 폰트 크기 및 색상 설정 -->
-        <div class="space-y-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-blue-400/40 dark:border-blue-500/40">
-            <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">글자 크기 설정</label>
-            
-            <div class="space-y-1">
-                <div class="flex justify-between text-xs text-slate-600 dark:text-slate-400">
-                    <span>시계/타이머 숫자 크기 (최대 22rem)</span>
-                    <span id="num-fontsize-label">8rem</span>
-                </div>
-                <input type="range" id="num-fontsize-range" min="4" max="22" step="0.5" value="8" oninput="changeNumberFontSize(this.value)" class="w-full accent-blue-600 cursor-pointer">
-            </div>
-
-            <!-- PC 환경 메모장 서식 조절 -->
-            <div class="hidden md:block space-y-1 pt-2 border-t border-slate-200 dark:border-slate-700">
-                <div class="flex justify-between text-xs text-slate-600 dark:text-slate-400">
-                    <span>메모장 글자 크기</span>
-                    <span id="memo-fontsize-label">24pt</span>
-                </div>
-                <input type="range" id="memo-fontsize-range" min="16" max="48" value="24" oninput="changeMemoFontSize(this.value)" class="w-full accent-blue-600 cursor-pointer">
-            </div>
-
-            <div class="hidden md:block space-y-1.5 pt-1">
-                <span class="text-xs text-slate-600 dark:text-slate-400">메모장 글자 색상 변경 (드래그 후 적용)</span>
-                <div class="flex items-center gap-2">
-                    <button onclick="setForeColor('#ffffff')" class="w-6 h-6 rounded-full bg-white hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="하얀색"></button>
-                    <button onclick="setForeColor('#1e293b')" class="w-6 h-6 rounded-full bg-slate-800 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="네이비/진한색"></button>
-                    <button onclick="setForeColor('#ef4444')" class="w-6 h-6 rounded-full bg-red-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="빨간색"></button>
-                    <button onclick="setForeColor('#3b82f6')" class="w-6 h-6 rounded-full bg-blue-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="파란색"></button>
-                    <button onclick="setForeColor('#10b981')" class="w-6 h-6 rounded-full bg-emerald-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="초록색"></button>
-                    <button onclick="setForeColor('#eab308')" class="w-6 h-6 rounded-full bg-yellow-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="노란색"></button>
-                    <button onclick="setForeColor('#a855f7')" class="w-6 h-6 rounded-full bg-purple-500 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="보라색"></button>
-                </div>
-            </div>
-        </div>
-
         <!-- 오디오 알람 설정 -->
         <div class="space-y-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-blue-400/40 dark:border-blue-500/40">
             <div class="flex items-center justify-between">
@@ -442,14 +447,36 @@
     <script>
         let currentLayoutMode = 'bottom'; // PC 전용: 'bottom' or 'right'
         let isMemoVisible = true;
+        let isTitleVisible = true;
         let audioPosition = 'bottom'; // 'top', 'middle', 'bottom'
         let showAudioTitle = true;
+        let currentFontSizeRem = 8; // 글자 크기 기본값
 
-        function isMobileView() {
-            return window.innerWidth < 768;
+        // 모바일 기기 감지: 터치 스크린 또는 모바일 브라우저/작은 화면
+        function isMobileDevice() {
+            const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            const isNarrow = window.innerWidth < 768;
+            const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            return (hasTouch && isMobileUA) || isNarrow;
         }
 
-        // 플레이어 바 DOM 배치 (음원이 있을 때만 렌더링)
+        // 제목 표시 토글 (시계 화면에 집중하기 위한 온/오프)
+        function toggleTitleVisibility(show) {
+            isTitleVisible = show;
+            const header = document.getElementById('main-header');
+            const subgroup = document.getElementById('title-settings-subgroup');
+            if (header) {
+                if (show) {
+                    header.classList.remove('hidden');
+                    if (subgroup) subgroup.classList.remove('opacity-50', 'pointer-events-none');
+                } else {
+                    header.classList.add('hidden');
+                    if (subgroup) subgroup.classList.add('opacity-50', 'pointer-events-none');
+                }
+            }
+        }
+
+        // 플레이어 바 DOM 배치 (음원이 등록되었을 때만 렌더링)
         function initAudioPlayerDOM() {
             const slotTop = document.getElementById('wrapper-slot-top');
             const slotMiddle = document.getElementById('wrapper-slot-middle');
@@ -472,13 +499,13 @@
             const clone = template.content.cloneNode(true);
             const playerBarElement = clone.firstElementChild;
 
-            // 모바일 환경이거나 메모장이 숨겨진 경우, middle 또는 bottom 모두 시계 아래에 안전하게 위치
+            // 모바일 환경이거나 메모장이 숨겨진 경우, middle/bottom 모두 시계 아래 슬롯에 배치
             if (audioPosition === 'top') {
                 slotTop.appendChild(playerBarElement);
             } else if (audioPosition === 'middle') {
                 slotMiddle.appendChild(playerBarElement);
             } else {
-                if (isMobileView()) {
+                if (isMobileDevice()) {
                     slotMiddle.appendChild(playerBarElement);
                 } else {
                     slotBottom.appendChild(playerBarElement);
@@ -528,19 +555,19 @@
             isMemoVisible = show;
             const memoContainer = document.getElementById('memo-container');
             const subgroup = document.getElementById('memo-settings-subgroup');
-            if (!isMobileView()) {
+            if (!isMobileDevice()) {
                 if (show) {
                     memoContainer.classList.remove('hidden');
-                    memoContainer.classList.add('md:flex');
+                    memoContainer.classList.add('flex');
                     subgroup.classList.remove('opacity-50', 'pointer-events-none');
                     applyCurrentLayout();
                 } else {
                     memoContainer.classList.add('hidden');
-                    memoContainer.classList.remove('md:flex');
+                    memoContainer.classList.remove('flex');
                     subgroup.classList.add('opacity-50', 'pointer-events-none');
                     const wrapper = document.getElementById('content-layout-wrapper');
                     const mainWrapper = document.getElementById('main-panel-wrapper');
-                    wrapper.className = "flex-1 flex flex-col gap-2.5 overflow-hidden";
+                    wrapper.className = "flex-1 flex flex-col gap-2 overflow-hidden";
                     mainWrapper.style.width = "100%";
                     mainWrapper.style.flex = "1";
                 }
@@ -576,34 +603,42 @@
 
         // 통합 레이아웃 갱신
         function applyCurrentLayout() {
-            const isMobile = isMobileView();
+            const isMobile = isMobileDevice();
             const wrapper = document.getElementById('content-layout-wrapper');
             const mainWrapper = document.getElementById('main-panel-wrapper');
             const memoContainer = document.getElementById('memo-container');
+            const memoSettingsCard = document.getElementById('pc-memo-settings-card');
             const memoSizeRange = document.getElementById('memo-size-range');
             const memoSizeTitle = document.getElementById('memo-size-title');
             const memoSizeLabel = document.getElementById('memo-size-label');
 
             if (isMobile) {
-                // 모바일 환경: 메모장 완전 제거 & 타이머가 100% 가득 참
-                wrapper.className = "flex-1 flex flex-col gap-2.5 overflow-hidden";
+                // 모바일 환경: 가로/세로 상관없이 메모장 완전 제거 & 타이머가 화면 전체를 가득 채움
+                wrapper.className = "flex-1 flex flex-col gap-2 overflow-hidden";
                 mainWrapper.style.width = "100%";
                 mainWrapper.style.flex = "1";
                 if (memoContainer) {
                     memoContainer.classList.add('hidden');
-                    memoContainer.classList.remove('md:flex');
+                    memoContainer.classList.remove('flex');
+                }
+                if (memoSettingsCard) {
+                    memoSettingsCard.classList.add('hidden'); // 모바일에서는 설정창의 메모장 카드도 숨김
                 }
             } else {
-                // PC 환경: 1.6 검증된 레이아웃 100% 그대로 보존
+                // PC 환경: 메모장 설정 카드 표시 및 레이아웃 적용
+                if (memoSettingsCard) {
+                    memoSettingsCard.classList.remove('hidden');
+                }
                 if (!isMemoVisible) {
-                    wrapper.className = "flex-1 flex flex-col gap-2.5 overflow-hidden";
+                    wrapper.className = "flex-1 flex flex-col gap-2 overflow-hidden";
                     mainWrapper.style.width = "100%";
                     mainWrapper.style.flex = "1";
                     memoContainer.classList.add('hidden');
+                    memoContainer.classList.remove('flex');
                     return;
                 }
                 memoContainer.classList.remove('hidden');
-                memoContainer.classList.add('md:flex');
+                memoContainer.classList.add('flex');
 
                 if (currentLayoutMode === 'bottom') {
                     wrapper.className = "flex-1 flex flex-col gap-2.5 overflow-hidden";
@@ -625,6 +660,9 @@
                     memoSizeLabel.innerText = rightWidth + '%';
                 }
             }
+
+            // 글자 크기 다시 적용
+            changeNumberFontSize(currentFontSizeRem);
         }
 
         // PC 전용 레이아웃 모드 설정 (하단 vs 우측)
@@ -660,10 +698,17 @@
             }
         }
 
-        // 화면 리사이즈 시 안전 레이아웃 재적용
+        // 화면 리사이즈 및 방향 회전 시 안전 레이아웃 재적용
         window.addEventListener('resize', () => {
             applyCurrentLayout();
             initAudioPlayerDOM();
+        });
+
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                applyCurrentLayout();
+                initAudioPlayerDOM();
+            }, 100);
         });
 
         function updateMainTitle(val) {}
@@ -884,7 +929,7 @@
                 isRunning = true;
                 displayEl.setAttribute('contenteditable', 'false');
                 btn.innerText = "일시정지";
-                btn.className = "w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
+                btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
 
                 timerInterval = setInterval(() => {
                     if (totalSeconds > 0) {
@@ -896,7 +941,7 @@
                         isRunning = false;
                         displayEl.setAttribute('contenteditable', 'true');
                         btn.innerText = "시작";
-                        btn.className = "w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
+                        btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
                         playAlarmSound();
                     }
                 }, 1000);
@@ -905,7 +950,7 @@
                 isRunning = false;
                 displayEl.setAttribute('contenteditable', 'true');
                 btn.innerText = "이어하기";
-                btn.className = "w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
+                btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
             }
         }
 
@@ -918,7 +963,7 @@
             renderTimerDisplay();
             const btn = document.getElementById('btn-timer-toggle');
             btn.innerText = "시작";
-            btn.className = "w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
+            btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
         }
 
         // --- 연속 타이머 (Sequential Timer) 로직 ---
@@ -1017,7 +1062,7 @@
 
                 seqIsRunning = true;
                 btn.innerText = "일시정지";
-                btn.className = "w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
+                btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
 
                 seqInterval = setInterval(() => {
                     if (seqSecondsLeft > 0) {
@@ -1040,11 +1085,11 @@
                                 }, 1000);
                             } else {
                                 btn.innerText = "다음 시작";
-                                btn.className = "w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
+                                btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
                             }
                         } else {
                             btn.innerText = "완료됨";
-                            btn.className = "w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-slate-600 text-white font-bold rounded-2xl shadow-md text-xs sm:text-sm md:text-base text-center cursor-not-allowed";
+                            btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-slate-600 text-white font-bold rounded-2xl shadow-md text-xs sm:text-sm md:text-base text-center cursor-not-allowed";
                         }
                     }
                 }, 1000);
@@ -1052,7 +1097,7 @@
                 clearInterval(seqInterval);
                 seqIsRunning = false;
                 btn.innerText = "이어하기";
-                btn.className = "w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
+                btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
             }
         }
 
@@ -1062,7 +1107,7 @@
             initSeqTimer();
             const btn = document.getElementById('btn-seq-toggle');
             btn.innerText = "시작";
-            btn.className = "w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
+            btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
         }
 
         // --- MP3 음악 플레이어 로직 ---
@@ -1419,13 +1464,30 @@
             }, delay * 1000);
         }
 
-        // 숫자 폰트 크기 조절 (최대 22rem 지원)
+        // 숫자 폰트 크기 조절 (모바일 & PC 모두 직관적으로 즉시 반영)
         function changeNumberFontSize(sizeVal) {
+            currentFontSizeRem = parseFloat(sizeVal);
             const sizeStr = sizeVal + 'rem';
-            document.getElementById('clock-time').style.fontSize = sizeStr;
-            document.getElementById('timer-display').style.fontSize = sizeStr;
-            document.getElementById('seq-timer-display').style.fontSize = sizeStr;
-            document.getElementById('num-fontsize-label').innerText = sizeStr;
+            
+            // 모바일일 때 화면 가로 폭을 넘치지 않으면서 슬라이더 조절이 정비례 반영되도록 clamp 적용
+            const isMobile = isMobileDevice();
+            let computedSize = sizeStr;
+            if (isMobile) {
+                // 모바일에서는 vw와 rem을 결합하여 슬라이더로 자유롭게 확대/축소 가능
+                computedSize = `min(${sizeVal}rem, ${sizeVal * 2.5}vw)`;
+            }
+
+            document.documentElement.style.setProperty('--clock-font-size', computedSize);
+
+            const clockTime = document.getElementById('clock-time');
+            const timerDisplay = document.getElementById('timer-display');
+            const seqDisplay = document.getElementById('seq-timer-display');
+            const label = document.getElementById('num-fontsize-label');
+
+            if (clockTime) clockTime.style.fontSize = computedSize;
+            if (timerDisplay) timerDisplay.style.fontSize = computedSize;
+            if (seqDisplay) seqDisplay.style.fontSize = computedSize;
+            if (label) label.innerText = sizeVal + 'rem';
         }
 
         // 메모장 글자 크기 조절 (PC 전용)
@@ -1459,14 +1521,10 @@
             switchView('timer');  // 디폴트 화면: 일반 타이머
             initAudioPlayerDOM(); // 음원 목록이 비어있으므로 플레이어 바는 숨겨짐
             
-            // 반응형 레이아웃 초기화
-            if (isMobileView()) {
-                applyCurrentLayout();
-            } else {
-                setLayoutMode('bottom');
-            }
+            // 반응형 레이아웃 및 폰트 크기 초기화
+            applyCurrentLayout();
+            changeNumberFontSize(8);
         });
     </script>
-
 </body>
 </html>
