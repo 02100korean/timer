@@ -2,7 +2,7 @@
 <html lang="ko" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>시험 타이머 및 시계</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,96 +19,104 @@
         }
         /* 커스텀 스크롤바 */
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
         }
         ::-webkit-scrollbar-track {
             background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(100, 116, 139, 0.3);
+            background: rgba(59, 130, 246, 0.4);
             border-radius: 9999px;
         }
     </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-screen w-screen overflow-hidden flex flex-col select-none transition-colors duration-300">
 
-    <div id="app-container" class="flex-1 flex flex-col h-full w-full p-3 md:p-6 gap-3 overflow-hidden">
+    <div id="app-container" class="flex-1 flex flex-col h-full w-full p-2.5 md:p-5 gap-2.5 overflow-hidden">
         
-        <!-- 상단 헤더: 시계 제목 (글박스) 및 설정 사이드바 열기 아이콘 -->
-        <header id="main-header" class="w-full flex items-center justify-between shrink-0 px-2">
+        <!-- 상단 헤더: 시계 제목 (가로 전체 넉넉하게 확장) 및 설정 사이드바 열기 아이콘 -->
+        <header id="main-header" class="w-full flex items-center justify-between shrink-0 px-1 gap-3">
             <div id="title-wrapper" class="flex-1 flex justify-center">
-                <input type="text" id="sidebar-title-input" value="시험 시간표" oninput="updateMainTitle(this.value)" class="bg-transparent hover:bg-slate-200/50 dark:hover:bg-slate-900/50 focus:bg-white dark:focus:bg-slate-900 text-slate-900 dark:text-white font-bold text-xl md:text-2xl px-3 py-1.5 rounded-xl border border-transparent focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none transition text-center max-w-md shadow-none" style="text-align: center;">
+                <input type="text" id="sidebar-title-input" value="시험 시간표" oninput="updateMainTitle(this.value)" class="w-full bg-transparent hover:bg-slate-200/50 dark:hover:bg-slate-900/50 focus:bg-white dark:focus:bg-slate-900 text-slate-900 dark:text-white font-bold text-lg md:text-2xl px-4 py-1.5 rounded-2xl border border-transparent focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none transition text-center shadow-none" style="text-align: center;">
             </div>
-            <div class="flex items-center gap-2">
-                <button onclick="toggleSidebar()" class="p-2.5 rounded-xl bg-white dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-blue-500/60 dark:border-blue-500/60 transition shadow-sm" title="설정">
+            <div class="flex items-center gap-2 shrink-0">
+                <button onclick="toggleSidebar()" class="p-2 md:p-2.5 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-blue-500/60 dark:border-blue-500/60 transition shadow-sm" title="설정">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 </button>
             </div>
         </header>
 
+        <!-- 전체 컨텐츠 영역 래퍼 (플레이어 위치 '시계 위'인 경우 여기에 들어감) -->
+        <div id="wrapper-slot-top" class="w-full flex flex-col shrink-0"></div>
+
         <!-- 중앙 콘텐츠 영역 (메모장 위치 모드에 따라 flex-col 또는 flex-row 동적 변경) -->
-        <div id="content-layout-wrapper" class="flex-1 flex flex-col gap-3 overflow-hidden">
+        <div id="content-layout-wrapper" class="flex-1 flex flex-col gap-2.5 overflow-hidden">
             
             <!-- 시계/타이머 메인 패널 -->
-            <div id="main-display-panel" class="flex-1 flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-900 border border-blue-500/60 dark:border-blue-500/60 rounded-3xl shadow-lg relative overflow-hidden" style="flex: 1;">
+            <div id="main-display-panel" class="flex-1 flex flex-col items-center justify-center p-3 md:p-6 bg-white dark:bg-slate-900 border border-blue-500/60 dark:border-blue-500/60 rounded-3xl shadow-lg relative overflow-hidden" style="flex: 1;">
                 
                 <!-- 1. 현재 시각 뷰 -->
                 <div id="view-clock-container" class="w-full flex flex-col items-center justify-center hidden">
-                    <div id="clock-date" class="text-slate-500 dark:text-slate-400 font-semibold text-lg md:text-2xl mb-2 tracking-wide">2026년 10월 16일 금요일</div>
+                    <div id="clock-date" class="text-slate-500 dark:text-slate-400 font-semibold text-base md:text-xl mb-1 tracking-wide">2026년 10월 17일 토요일</div>
                     <div class="flex items-baseline justify-center gap-2 md:gap-3">
-                        <div id="clock-ampm" class="text-blue-600 dark:text-blue-400 font-extrabold text-2xl md:text-4xl tracking-widest uppercase">오전</div>
+                        <div id="clock-ampm" class="text-blue-600 dark:text-blue-400 font-extrabold text-xl md:text-3xl tracking-widest uppercase">오전</div>
                         <div id="clock-time" class="font-black tracking-wider text-slate-900 dark:text-white" style="font-size: 8rem; line-height: 1;">08:12</div>
                     </div>
                 </div>
 
                 <!-- 2. 단일 타이머 뷰 -->
                 <div id="view-timer-container" class="w-full flex flex-col items-center justify-center">
-                    <div id="timer-inner-layout" class="flex flex-row items-center justify-center gap-6">
+                    <div id="timer-inner-layout" class="flex flex-row items-center justify-center gap-4 md:gap-8">
                         <div id="timer-display" contenteditable="true" onblur="syncEditableTimer(this.innerText)" class="font-black tracking-wider text-slate-900 dark:text-white py-2 text-center outline-none border-b-2 border-dashed border-transparent hover:border-blue-400 transition" style="font-size: 8rem; line-height: 1;" title="클릭하여 직접 시간을 입력할 수 있습니다">10:00</div>
 
                         <div id="timer-controls-wrapper" class="flex flex-col items-center justify-center gap-2.5">
-                            <button id="btn-timer-toggle" onclick="toggleTimer()" class="w-28 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-base text-center">시작</button>
-                            <button onclick="resetTimer()" class="w-28 py-3 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold rounded-2xl border border-blue-600 dark:border-blue-500 shadow transition transform active:scale-95 text-base text-center">초기화</button>
+                            <button id="btn-timer-toggle" onclick="toggleTimer()" class="w-24 md:w-28 py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-sm md:text-base text-center">시작</button>
+                            <button onclick="resetTimer()" class="w-24 md:w-28 py-2.5 md:py-3 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold rounded-2xl border border-blue-600 dark:border-blue-500 shadow transition transform active:scale-95 text-sm md:text-base text-center">초기화</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- 3. 연속 타이머 뷰 -->
                 <div id="view-seq-timer-container" class="w-full flex flex-col items-center justify-center hidden">
-                    <!-- 현재 진행 중인 연속 타이머 정보 배지 -->
-                    <div class="mb-3 px-4 py-1.5 bg-blue-50 dark:bg-blue-950/50 border border-blue-500/40 rounded-full flex items-center gap-2">
+                    <div class="mb-2 md:mb-3 px-4 py-1 bg-blue-50 dark:bg-blue-950/50 border border-blue-500/40 rounded-full flex items-center gap-2">
                         <span id="seq-step-badge" class="text-xs font-bold text-blue-600 dark:text-blue-400">타이머 1 / 3</span>
                         <span class="text-xs text-slate-400">|</span>
                         <span id="seq-mode-badge" class="text-xs font-semibold text-slate-600 dark:text-slate-300">자동 진행</span>
                     </div>
 
-                    <div id="seq-timer-inner-layout" class="flex flex-row items-center justify-center gap-6">
+                    <div id="seq-timer-inner-layout" class="flex flex-row items-center justify-center gap-4 md:gap-8">
                         <div id="seq-timer-display" class="font-black tracking-wider text-slate-900 dark:text-white py-2 text-center" style="font-size: 8rem; line-height: 1;">00:00</div>
 
                         <div id="seq-timer-controls-wrapper" class="flex flex-col items-center justify-center gap-2.5">
-                            <button id="btn-seq-toggle" onclick="toggleSeqTimer()" class="w-28 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-base text-center">시작</button>
-                            <button onclick="resetSeqTimer()" class="w-28 py-3 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold rounded-2xl border border-blue-600 dark:border-blue-500 shadow transition transform active:scale-95 text-base text-center">초기화</button>
+                            <button id="btn-seq-toggle" onclick="toggleSeqTimer()" class="w-24 md:w-28 py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-sm md:text-base text-center">시작</button>
+                            <button onclick="resetSeqTimer()" class="w-24 md:w-28 py-2.5 md:py-3 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold rounded-2xl border border-blue-600 dark:border-blue-500 shadow transition transform active:scale-95 text-sm md:text-base text-center">초기화</button>
                         </div>
                     </div>
                 </div>
 
             </div>
 
+            <!-- 전체 컨텐츠 영역 래퍼 (플레이어 위치 '시계 아래'인 경우 여기에 들어감) -->
+            <div id="wrapper-slot-middle" class="w-full flex flex-col shrink-0"></div>
+
             <!-- 메모장 박스 -->
-            <div id="memo-container" class="bg-white dark:bg-slate-900 border border-blue-500/60 dark:border-blue-500/60 rounded-3xl p-4 shadow-lg flex flex-col shrink-0 transition-all" style="height: 40vh; width: 100%;">
-                <div id="memo-editor" contenteditable="true" class="flex-1 w-full bg-slate-50 dark:bg-slate-950/40 border border-blue-400/40 dark:border-blue-500/40 rounded-2xl p-4 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 overflow-y-auto shadow-inner transition-all" style="font-size: 26pt; line-height: 1.4;" placeholder="주의사항이나 안내 문구를 입력하세요.">시험 중 전자기기 소지 금지</div>
+            <div id="memo-container" class="bg-white dark:bg-slate-900 border border-blue-500/60 dark:border-blue-500/60 rounded-3xl p-3 md:p-4 shadow-lg flex flex-col shrink-0 transition-all" style="height: 40vh; width: 100%;">
+                <div id="memo-editor" contenteditable="true" class="flex-1 w-full bg-slate-50 dark:bg-slate-950/40 border border-blue-400/40 dark:border-blue-500/40 rounded-2xl p-3 md:p-4 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 overflow-y-auto shadow-inner transition-all" style="font-size: 24pt; line-height: 1.4;" placeholder="주의사항이나 안내 문구를 입력하세요.">시험 중 전자기기 소지 금지</div>
             </div>
 
         </div>
 
+        <!-- 전체 컨텐츠 영역 래퍼 (플레이어 위치 '메모장 아래'인 경우 여기에 들어감) -->
+        <div id="wrapper-slot-bottom" class="w-full flex flex-col shrink-0"></div>
+
     </div>
 
     <!-- 설정 사이드바 -->
-    <aside id="settings-sidebar" class="fixed top-0 right-0 h-full w-80 md:w-96 bg-white dark:bg-slate-900 border-l border-blue-500/60 dark:border-blue-500/60 p-5 flex flex-col gap-5 shadow-2xl overflow-y-auto z-50 transition-transform duration-300 transform translate-x-full">
+    <aside id="settings-sidebar" class="fixed top-0 right-0 h-full w-80 md:w-96 bg-white dark:bg-slate-900 border-l border-blue-500/60 dark:border-blue-500/60 p-4 md:p-5 flex flex-col gap-4 shadow-2xl overflow-y-auto z-50 transition-transform duration-300 transform translate-x-full">
         
         <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
-            <h2 class="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+            <h2 class="font-bold text-base md:text-lg text-slate-900 dark:text-white flex items-center gap-2">
                 <span>⚙️</span> 제어판 및 설정
             </h2>
             <div class="flex items-center gap-2">
@@ -247,8 +255,8 @@
             <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">연속 타이머 설정</label>
             
             <div class="space-y-1.5">
-                <span class="text-xs text-slate-600 dark:text-slate-400">시간 목록 (콤마/띄어쓰기, 예: 3:02, 5, 10)</span>
-                <input type="text" id="seq-times-input" value="3, 5, 10, 30, 5, 10" onchange="updateSeqConfig()" class="w-full bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 focus:outline-none focus:border-blue-500 font-bold" placeholder="예: 3:02, 5, 10">
+                <span class="text-xs text-slate-600 dark:text-slate-400">시간 목록 (예: 3:02, 5, 10:30)</span>
+                <input type="text" id="seq-times-input" value="3:02, 5, 10, 30, 5, 10" onchange="updateSeqConfig()" class="w-full bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 focus:outline-none focus:border-blue-500 font-bold" placeholder="예: 3:02, 5, 10">
             </div>
 
             <div class="space-y-1.5 pt-1">
@@ -257,6 +265,45 @@
                     <button id="btn-seq-auto" onclick="setSeqMode('auto')" class="py-1.5 rounded-lg font-bold text-xs bg-blue-600 text-white shadow transition">자동 넘어감</button>
                     <button id="btn-seq-manual" onclick="setSeqMode('manual')" class="py-1.5 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition">수동 대기</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- MP3 음악 재생 목록 편집 및 위치 설정 -->
+        <div class="space-y-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-blue-400/40 dark:border-blue-500/40">
+            <div class="flex items-center justify-between">
+                <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">배경 음악 (MP3) 관리</label>
+                <label class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold cursor-pointer transition shadow">
+                    + 음악 추가
+                    <input type="file" id="mp3-file-input" accept="audio/mp3,audio/*" multiple onchange="handleMp3Upload(event)" class="hidden">
+                </label>
+            </div>
+
+            <!-- 드래그 앤 드롭 영역 -->
+            <div id="drop-zone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" class="border-2 border-dashed border-blue-400/60 dark:border-blue-500/60 rounded-xl p-3 text-center bg-blue-50/50 dark:bg-blue-950/20 text-xs text-slate-600 dark:text-slate-400 transition cursor-pointer">
+                🎵 이곳에 MP3 파일을 드래그하여 놓으세요
+            </div>
+
+            <!-- 재생바 위치 선택 -->
+            <div class="space-y-1.5 pt-1">
+                <span class="text-xs text-slate-600 dark:text-slate-400">재생바 위치</span>
+                <div class="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-blue-400/40 dark:border-blue-500/40">
+                    <button id="btn-audio-pos-top" onclick="setAudioPosition('top')" class="py-1 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition">시계 위</button>
+                    <button id="btn-audio-pos-middle" onclick="setAudioPosition('middle')" class="py-1 rounded-lg font-bold text-xs bg-blue-600 text-white shadow transition">시계 아래</button>
+                    <button id="btn-audio-pos-bottom" onclick="setAudioPosition('bottom')" class="py-1 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition">메모장 아래</button>
+                </div>
+            </div>
+
+            <!-- 파일 제목 표시 여부 -->
+            <div class="flex items-center justify-between pt-1">
+                <span class="text-xs text-slate-600 dark:text-slate-400">플레이어에 파일 제목 표시</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="audio-show-title" checked onchange="toggleAudioTitleVisibility(this.checked)" class="sr-only peer">
+                    <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+            </div>
+
+            <div id="sidebar-playlist-container" class="space-y-1.5 max-h-36 overflow-y-auto pt-1">
+                <p class="text-xs text-slate-400 text-center py-2">등록된 음악이 없습니다. (드래그하여 순서 변경 가능)</p>
             </div>
         </div>
 
@@ -275,13 +322,13 @@
             <div class="space-y-1 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <div class="flex justify-between text-xs text-slate-600 dark:text-slate-400">
                     <span>메모장 글자 크기</span>
-                    <span id="memo-fontsize-label">26pt</span>
+                    <span id="memo-fontsize-label">24pt</span>
                 </div>
-                <input type="range" id="memo-fontsize-range" min="18" max="48" value="26" oninput="changeMemoFontSize(this.value)" class="w-full accent-blue-600 cursor-pointer">
+                <input type="range" id="memo-fontsize-range" min="16" max="48" value="24" oninput="changeMemoFontSize(this.value)" class="w-full accent-blue-600 cursor-pointer">
             </div>
 
             <div class="space-y-1.5 pt-1">
-                <span class="text-xs text-slate-600 dark:text-slate-400">메모장 글자 색상 변경 (드래그 선택 후 적용)</span>
+                <span class="text-xs text-slate-600 dark:text-slate-400">메모장 글자 색상 변경 (드래그 후 적용)</span>
                 <div class="flex items-center gap-2">
                     <button onclick="setForeColor('#ffffff')" class="w-6 h-6 rounded-full bg-white hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="하얀색"></button>
                     <button onclick="setForeColor('#1e293b')" class="w-6 h-6 rounded-full bg-slate-800 hover:scale-110 transition border border-slate-300 dark:border-slate-700 shadow-sm" title="네이비/진한색"></button>
@@ -297,7 +344,7 @@
         <!-- 오디오 알람 설정 -->
         <div class="space-y-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-blue-400/40 dark:border-blue-500/40">
             <div class="flex items-center justify-between">
-                <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">오디오 알람</label>
+                <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">타이머 종료 알람</label>
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" id="alarm-enabled" checked class="sr-only peer">
                     <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
@@ -317,9 +364,139 @@
 
     </aside>
 
+    <!-- 공통 오디오 플레이어 바 템플릿 (위치에 따라 이동됨) -->
+    <template id="audio-player-template">
+        <div id="audio-player-bar" class="w-full bg-white dark:bg-slate-900 border border-blue-500/60 dark:border-blue-500/60 rounded-2xl px-4 py-2.5 shadow-md flex flex-col gap-2 shrink-0 hidden">
+            <!-- 상단 컨트롤 행 -->
+            <div class="flex items-center justify-between w-full gap-3">
+                <div id="audio-track-info-wrapper" class="flex items-center gap-2 overflow-hidden shrink-0">
+                    <span class="text-xs md:text-sm font-bold text-blue-600 dark:text-blue-400 shrink-0">🎵 음악</span>
+                    <span id="current-track-name" class="text-xs md:text-sm text-slate-700 dark:text-slate-300 truncate font-semibold">재생 중인 곡 없음</span>
+                </div>
+                <div class="flex items-center gap-2 shrink-0 ml-auto">
+                    <button onclick="prevTrack()" class="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition" title="이전 곡">⏮</button>
+                    <button id="btn-play-pause" onclick="togglePlayAudio()" class="px-3.5 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition shadow">재생</button>
+                    <button onclick="stopAudio()" class="px-2.5 py-1 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition">정지</button>
+                    <button onclick="nextTrack()" class="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition" title="다음 곡">⏭</button>
+                    
+                    <!-- 재생 속도 드롭다운 (0.5x ~ 2.0x, 0.1 단위) -->
+                    <select id="audio-playback-rate" onchange="changePlaybackRate(this.value)" class="bg-slate-100 dark:bg-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-xl px-2 py-1 focus:outline-none focus:border-blue-500" title="재생 속도">
+                        <option value="0.5">0.5x</option>
+                        <option value="0.6">0.6x</option>
+                        <option value="0.7">0.7x</option>
+                        <option value="0.8">0.8x</option>
+                        <option value="0.9">0.9x</option>
+                        <option value="1.0" selected>1.0x</option>
+                        <option value="1.1">1.1x</option>
+                        <option value="1.2">1.2x</option>
+                        <option value="1.3">1.3x</option>
+                        <option value="1.4">1.4x</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="1.6">1.6x</option>
+                        <option value="1.7">1.7x</option>
+                        <option value="1.8">1.8x</option>
+                        <option value="1.9">1.9x</option>
+                        <option value="2.0">2.0x</option>
+                    </select>
+
+                    <input type="range" id="audio-volume" min="0" max="1" step="0.05" value="1" oninput="changeAudioVolume(this.value)" class="w-16 md:w-20 accent-blue-600 cursor-pointer" title="음량 조절">
+                    
+                    <!-- 재생목록 접기/펼치기 화살표 버튼 -->
+                    <button onclick="togglePlaylistDrawer()" id="playlist-toggle-btn" class="p-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 transition font-bold text-xs flex items-center gap-1 border border-blue-500/30">
+                        목록 <span id="playlist-arrow">▼</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 하단 전체 가로 폭을 채우는 재생 진행 스크롤바 -->
+            <div class="w-full flex items-center gap-2 pt-1">
+                <span id="audio-current-time" class="text-[10px] text-slate-500 dark:text-slate-400 shrink-0 w-8 text-right">00:00</span>
+                <input type="range" id="audio-seek-bar" min="0" max="100" value="0" step="0.1" oninput="seekAudio(this.value)" class="flex-1 accent-blue-600 cursor-pointer h-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg">
+                <span id="audio-total-duration" class="text-[10px] text-slate-500 dark:text-slate-400 shrink-0 w-8">00:00</span>
+            </div>
+
+            <!-- 평소에는 접혀 있는 재생 목록 서랍 -->
+            <div id="playlist-drawer" class="hidden pt-2 border-t border-slate-200 dark:border-slate-800 max-h-32 overflow-y-auto space-y-1">
+                <div id="playlist-items" class="text-xs space-y-1">
+                    <!-- 동적 생성 -->
+                </div>
+            </div>
+        </div>
+    </template>
+
     <script>
         let currentLayoutMode = 'bottom'; // 'bottom' 또는 'right'
         let isMemoVisible = true;
+        let audioPosition = 'middle'; // 'top', 'middle', 'bottom'
+        let showAudioTitle = true;
+
+        // 플레이어 바 초기 DOM 배치
+        function initAudioPlayerDOM() {
+            const template = document.getElementById('audio-player-template');
+            const clone = template.content.cloneNode(true);
+            const playerBarElement = clone.firstElementChild;
+            
+            // 기존 플레이어가 있다면 제거
+            const existing = document.getElementById('audio-player-bar');
+            if (existing) existing.remove();
+
+            // 올바른 슬롯 및 위치에 삽입 처리
+            const slotTop = document.getElementById('wrapper-slot-top');
+            const slotMiddle = document.getElementById('wrapper-slot-middle');
+            const slotBottom = document.getElementById('wrapper-slot-bottom');
+            
+            slotTop.innerHTML = '';
+            slotMiddle.innerHTML = '';
+            slotBottom.innerHTML = '';
+
+            if (audioPosition === 'top') {
+                slotTop.appendChild(playerBarElement);
+            } else if (audioPosition === 'middle') {
+                // 시계 아래 (메모장 위)
+                slotMiddle.appendChild(playerBarElement);
+            } else {
+                // 메모장 아래
+                slotBottom.appendChild(playerBarElement);
+            }
+
+            // 상태 복원
+            if (playlist.length > 0) {
+                document.getElementById('audio-player-bar').classList.remove('hidden');
+                renderPlaylist();
+            }
+            toggleAudioTitleVisibility(showAudioTitle);
+        }
+
+        function setAudioPosition(pos) {
+            audioPosition = pos;
+            const btnTop = document.getElementById('btn-audio-pos-top');
+            const btnMid = document.getElementById('btn-audio-pos-middle');
+            const btnBot = document.getElementById('btn-audio-pos-bottom');
+
+            btnTop.className = "py-1 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition";
+            btnMid.className = "py-1 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition";
+            btnBot.className = "py-1 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition";
+
+            if (pos === 'top') {
+                btnTop.className = "py-1 rounded-lg font-bold text-xs bg-blue-600 text-white shadow transition";
+            } else if (pos === 'middle') {
+                btnMid.className = "py-1 rounded-lg font-bold text-xs bg-blue-600 text-white shadow transition";
+            } else {
+                btnBot.className = "py-1 rounded-lg font-bold text-xs bg-blue-600 text-white shadow transition";
+            }
+
+            initAudioPlayerDOM();
+        }
+
+        function toggleAudioTitleVisibility(show) {
+            showAudioTitle = show;
+            const trackNameEl = document.getElementById('current-track-name');
+            if (!trackNameEl) return;
+            if (playlist.length > 0) {
+                trackNameEl.innerText = show ? playlist[currentTrackIndex].name : String(currentTrackIndex + 1).padStart(3, '0');
+            }
+            renderPlaylist();
+        }
 
         // 메모장 표시 여부 토글
         function toggleMemoVisibility(show) {
@@ -333,13 +510,12 @@
             } else {
                 memoContainer.classList.add('hidden');
                 subgroup.classList.add('opacity-50', 'pointer-events-none');
-                // 메모장이 숨겨지면 메인 패널이 전체 화면을 차지하도록 복구
                 const wrapper = document.getElementById('content-layout-wrapper');
-                wrapper.className = "flex-1 flex flex-col gap-3 overflow-hidden";
+                wrapper.className = "flex-1 flex flex-col gap-2.5 overflow-hidden";
                 const timerInnerLayout = document.getElementById('timer-inner-layout');
                 const seqInnerLayout = document.getElementById('seq-timer-inner-layout');
-                timerInnerLayout.className = "flex flex-row items-center justify-center gap-6";
-                seqInnerLayout.className = "flex flex-row items-center justify-center gap-6";
+                timerInnerLayout.className = "flex flex-row items-center justify-center gap-4 md:gap-8";
+                seqInnerLayout.className = "flex flex-row items-center justify-center gap-4 md:gap-8";
             }
         }
 
@@ -385,27 +561,25 @@
             const memoSizeLabel = document.getElementById('memo-size-label');
 
             if (mode === 'bottom') {
-                wrapper.className = "flex-1 flex flex-col gap-3 overflow-hidden";
-                memoContainer.style.height = "40vh";
+                wrapper.className = "flex-1 flex flex-col gap-2.5 overflow-hidden";
+                memoContainer.style.height = memoSizeRange.value + 'vh';
                 memoContainer.style.width = "100%";
-                timerInnerLayout.className = "flex flex-row items-center justify-center gap-6";
-                seqInnerLayout.className = "flex flex-row items-center justify-center gap-6";
+                timerInnerLayout.className = "flex flex-row items-center justify-center gap-4 md:gap-8";
+                seqInnerLayout.className = "flex flex-row items-center justify-center gap-4 md:gap-8";
                 btnBottom.className = "py-2 rounded-lg font-bold text-xs transition bg-blue-600 text-white shadow";
                 btnRight.className = "py-2 rounded-lg font-bold text-xs transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200";
-                memoSizeRange.value = 40;
                 memoSizeTitle.innerText = "메모장 높이 비율";
-                memoSizeLabel.innerText = "40%";
+                memoSizeLabel.innerText = memoSizeRange.value + '%';
             } else {
-                wrapper.className = "flex-1 flex flex-row gap-3 overflow-hidden";
+                wrapper.className = "flex-1 flex flex-col md:flex-row gap-2.5 overflow-hidden";
                 memoContainer.style.height = "100%";
-                memoContainer.style.width = "35%";
+                memoContainer.style.width = memoSizeRange.value + '%';
                 timerInnerLayout.className = "flex flex-col items-center justify-center gap-4";
                 seqInnerLayout.className = "flex flex-col items-center justify-center gap-4";
                 btnRight.className = "py-2 rounded-lg font-bold text-xs transition bg-blue-600 text-white shadow";
                 btnBottom.className = "py-2 rounded-lg font-bold text-xs transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200";
-                memoSizeRange.value = 35;
                 memoSizeTitle.innerText = "메모장 너비 비율";
-                memoSizeLabel.innerText = "35%";
+                memoSizeLabel.innerText = memoSizeRange.value + '%';
             }
         }
 
@@ -477,7 +651,6 @@
             const btnTimer = document.getElementById('btn-view-timer');
             const btnSeq = document.getElementById('btn-view-seq');
 
-            // 초기화
             clockContainer.classList.add('hidden');
             timerContainer.classList.add('hidden');
             seqContainer.classList.add('hidden');
@@ -508,7 +681,7 @@
             updateClock();
         }
 
-        // 실시간 시계 로직 (안전한 요소 확인 추가)
+        // 실시간 시계 로직
         function updateClock() {
             const now = new Date();
             const year = now.getFullYear();
@@ -641,7 +814,7 @@
                 isRunning = true;
                 displayEl.setAttribute('contenteditable', 'false');
                 btn.innerText = "일시정지";
-                btn.className = "w-28 py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-base text-center";
+                btn.className = "w-24 md:w-28 py-2.5 md:py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-sm md:text-base text-center";
 
                 timerInterval = setInterval(() => {
                     if (totalSeconds > 0) {
@@ -653,7 +826,7 @@
                         isRunning = false;
                         displayEl.setAttribute('contenteditable', 'true');
                         btn.innerText = "시작";
-                        btn.className = "w-28 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-base text-center";
+                        btn.className = "w-24 md:w-28 py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-sm md:text-base text-center";
                         playAlarmSound();
                     }
                 }, 1000);
@@ -662,7 +835,7 @@
                 isRunning = false;
                 displayEl.setAttribute('contenteditable', 'true');
                 btn.innerText = "이어하기";
-                btn.className = "w-28 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-base text-center";
+                btn.className = "w-24 md:w-28 py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-sm md:text-base text-center";
             }
         }
 
@@ -675,17 +848,17 @@
             renderTimerDisplay();
             const btn = document.getElementById('btn-timer-toggle');
             btn.innerText = "시작";
-            btn.className = "w-28 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-base text-center";
+            btn.className = "w-24 md:w-28 py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-sm md:text-base text-center";
         }
 
 
         // --- 연속 타이머 (Sequential Timer) 로직 ---
-        let seqTimersList = []; // 초 단위 배열
+        let seqTimersList = [];
         let seqCurrentIndex = 0;
         let seqSecondsLeft = 0;
         let seqInterval = null;
         let seqIsRunning = false;
-        let seqMode = 'auto'; // 'auto' 또는 'manual'
+        let seqMode = 'auto';
 
         function setSeqMode(mode) {
             seqMode = mode;
@@ -723,13 +896,13 @@
                         list.push(secs);
                     }
                 } else {
-                    let mins = parseInt(p);
+                    let mins = parseFloat(p);
                     if (!isNaN(mins) && mins > 0) {
-                        list.push(mins * 60);
+                        list.push(Math.round(mins * 60));
                     }
                 }
             }
-            if (list.length === 0) list = [180, 300, 600]; // 디폴트
+            if (list.length === 0) list = [180, 300, 600];
             return list;
         }
 
@@ -775,7 +948,7 @@
 
                 seqIsRunning = true;
                 btn.innerText = "일시정지";
-                btn.className = "w-28 py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-base text-center";
+                btn.className = "w-24 md:w-28 py-2.5 md:py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-sm md:text-base text-center";
 
                 seqInterval = setInterval(() => {
                     if (seqSecondsLeft > 0) {
@@ -798,11 +971,11 @@
                                 }, 1000);
                             } else {
                                 btn.innerText = "다음 시작";
-                                btn.className = "w-28 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-base text-center";
+                                btn.className = "w-24 md:w-28 py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-sm md:text-base text-center";
                             }
                         } else {
                             btn.innerText = "완료됨";
-                            btn.className = "w-28 py-3 bg-slate-600 text-white font-bold rounded-2xl shadow-md text-base text-center cursor-not-allowed";
+                            btn.className = "w-24 md:w-28 py-2.5 md:py-3 bg-slate-600 text-white font-bold rounded-2xl shadow-md text-sm md:text-base text-center cursor-not-allowed";
                         }
                     }
                 }, 1000);
@@ -810,7 +983,7 @@
                 clearInterval(seqInterval);
                 seqIsRunning = false;
                 btn.innerText = "이어하기";
-                btn.className = "w-28 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-base text-center";
+                btn.className = "w-24 md:w-28 py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-sm md:text-base text-center";
             }
         }
 
@@ -820,7 +993,292 @@
             initSeqTimer();
             const btn = document.getElementById('btn-seq-toggle');
             btn.innerText = "시작";
-            btn.className = "w-28 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-base text-center";
+            btn.className = "w-24 md:w-28 py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-sm md:text-base text-center";
+        }
+
+
+        // --- MP3 음악 플레이어 로직 ---
+        let playlist = [];
+        let currentTrackIndex = 0;
+        let audioElement = new Audio();
+        let isAudioPlaying = false;
+        let draggedTrackIndex = null;
+
+        audioElement.addEventListener('ended', () => {
+            nextTrack();
+        });
+
+        audioElement.addEventListener('timeupdate', () => {
+            if (!isNaN(audioElement.duration)) {
+                const percent = (audioElement.currentTime / audioElement.duration) * 100;
+                const seekBar = document.getElementById('audio-seek-bar');
+                if (seekBar) seekBar.value = percent;
+
+                const curTimeEl = document.getElementById('audio-current-time');
+                const durTimeEl = document.getElementById('audio-total-duration');
+                if (curTimeEl) curTimeEl.innerText = formatTime(audioElement.currentTime);
+                if (durTimeEl) durTimeEl.innerText = formatTime(audioElement.duration);
+            }
+        });
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function seekAudio(val) {
+            if (!isNaN(audioElement.duration)) {
+                audioElement.currentTime = (val / 100) * audioElement.duration;
+            }
+        }
+
+        function changePlaybackRate(rate) {
+            audioElement.playbackRate = parseFloat(rate);
+        }
+
+        function handleMp3Upload(event) {
+            const files = event.target.files;
+            processFiles(files);
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const dropZone = document.getElementById('drop-zone');
+            if (dropZone) dropZone.classList.add('border-blue-600', 'bg-blue-100/50', 'dark:bg-blue-900/40');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const dropZone = document.getElementById('drop-zone');
+            if (dropZone) dropZone.classList.remove('border-blue-600', 'bg-blue-100/50', 'dark:bg-blue-900/40');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const dropZone = document.getElementById('drop-zone');
+            if (dropZone) dropZone.classList.remove('border-blue-600', 'bg-blue-100/50', 'dark:bg-blue-900/40');
+
+            const files = event.dataTransfer.files;
+            if (files && files.length > 0) {
+                processFiles(files);
+            }
+        }
+
+        function processFiles(files) {
+            let addedCount = 0;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.type.includes('audio') || file.name.endsWith('.mp3')) {
+                    const fileUrl = URL.createObjectURL(file);
+                    playlist.push({ name: file.name, url: fileUrl });
+                    addedCount++;
+                }
+            }
+
+            if (addedCount > 0) {
+                renderPlaylist();
+                const bar = document.getElementById('audio-player-bar');
+                if (bar) bar.classList.remove('hidden');
+
+                // 업로드 직후 자동 재생되지 않도록 수정 (사용자가 재생 버튼을 누를 때까지 대기)
+                if (playlist.length === addedCount) {
+                    currentTrackIndex = 0;
+                    audioElement.src = playlist[0].url;
+                    const trackNameEl = document.getElementById('current-track-name');
+                    if (trackNameEl) {
+                        trackNameEl.innerText = showAudioTitle ? playlist[0].name : String(1).padStart(3, '0');
+                    }
+                }
+            }
+        }
+
+        // 재생목록 드래그 앤 드롭 순서 변경 함수들
+        function onPlaylistDragStart(e, index) {
+            draggedTrackIndex = index;
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function onPlaylistDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function onPlaylistDrop(e, targetIndex) {
+            e.preventDefault();
+            if (draggedTrackIndex === null || draggedTrackIndex === targetIndex) return;
+
+            const movedItem = playlist.splice(draggedTrackIndex, 1)[0];
+            playlist.splice(targetIndex, 0, movedItem);
+
+            // 현재 재생 중인 곡 인덱스 보정
+            if (currentTrackIndex === draggedTrackIndex) {
+                currentTrackIndex = targetIndex;
+            } else if (draggedTrackIndex < currentTrackIndex && targetIndex >= currentTrackIndex) {
+                currentTrackIndex--;
+            } else if (draggedTrackIndex > currentTrackIndex && targetIndex <= currentTrackIndex) {
+                currentTrackIndex++;
+            }
+
+            draggedTrackIndex = null;
+            renderPlaylist();
+        }
+
+        function renderPlaylist() {
+            const sidebarContainer = document.getElementById('sidebar-playlist-container');
+            const drawerContainer = document.getElementById('playlist-items');
+
+            if (playlist.length === 0) {
+                sidebarContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-2">등록된 음악이 없습니다. (드래그하여 순서 변경 가능)</p>`;
+                if (drawerContainer) drawerContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-1">재생 목록이 비어 있습니다.</p>`;
+                return;
+            }
+
+            let sidebarHtml = '';
+            let drawerHtml = '';
+
+            playlist.forEach((track, index) => {
+                const isActive = (index === currentTrackIndex);
+                const activeClass = isActive ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-500 font-bold text-blue-600 dark:text-blue-400' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300';
+                
+                const displayName = showAudioTitle ? `${index + 1}. ${track.name}` : String(index + 1).padStart(3, '0');
+
+                sidebarHtml += `
+                    <div draggable="true" ondragstart="onPlaylistDragStart(event, ${index})" ondragover="onPlaylistDragOver(event)" ondrop="onPlaylistDrop(event, ${index})" class="flex items-center justify-between p-2 rounded-xl border ${activeClass} text-xs cursor-grab active:cursor-grabbing">
+                        <div class="flex items-center gap-2 truncate flex-1" onclick="selectTrack(${index})">
+                            <span class="text-slate-400">☰</span>
+                            <span class="truncate">${displayName}</span>
+                        </div>
+                        <button onclick="removeTrack(${index})" class="text-red-500 hover:text-red-700 ml-2 px-1">✕</button>
+                    </div>
+                `;
+
+                drawerHtml += `
+                    <div draggable="true" ondragstart="onPlaylistDragStart(event, ${index})" ondragover="onPlaylistDragOver(event)" ondrop="onPlaylistDrop(event, ${index})" class="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-grab active:cursor-grabbing ${isActive ? 'text-blue-600 dark:text-blue-400 font-bold bg-blue-50/50 dark:bg-blue-950/30' : 'text-slate-700 dark:text-slate-300'}">
+                        <div class="flex items-center gap-2 truncate flex-1" onclick="selectTrack(${index})">
+                            <span class="text-slate-400">☰</span>
+                            <span class="truncate">${displayName}</span>
+                        </div>
+                        ${isActive ? '<span>▶</span>' : ''}
+                    </div>
+                `;
+            });
+
+            sidebarContainer.innerHTML = sidebarHtml;
+            if (drawerContainer) drawerContainer.innerHTML = drawerHtml;
+        }
+
+        function selectTrack(index) {
+            if (index < 0 || index >= playlist.length) return;
+            currentTrackIndex = index;
+            audioElement.src = playlist[currentTrackIndex].url;
+            const trackNameEl = document.getElementById('current-track-name');
+            if (trackNameEl) {
+                trackNameEl.innerText = showAudioTitle ? playlist[currentTrackIndex].name : String(index + 1).padStart(3, '0');
+            }
+            
+            audioElement.play().then(() => {
+                isAudioPlaying = true;
+                const playBtn = document.getElementById('btn-play-pause');
+                if (playBtn) playBtn.innerText = "일시정지";
+            }).catch(err => {
+                if (err.name !== 'AbortError') {
+                    console.error("Playback error:", err);
+                }
+            });
+            renderPlaylist();
+        }
+
+        function togglePlayAudio() {
+            if (playlist.length === 0) return;
+            if (!audioElement.src) {
+                selectTrack(0);
+                return;
+            }
+
+            const playBtn = document.getElementById('btn-play-pause');
+            if (isAudioPlaying) {
+                audioElement.pause();
+                isAudioPlaying = false;
+                if (playBtn) playBtn.innerText = "재생";
+            } else {
+                audioElement.play().then(() => {
+                    isAudioPlaying = true;
+                    if (playBtn) playBtn.innerText = "일시정지";
+                }).catch(err => {
+                    if (err.name !== 'AbortError') {
+                        console.error("Playback error:", err);
+                    }
+                });
+            }
+        }
+
+        function stopAudio() {
+            audioElement.pause();
+            audioElement.currentTime = 0;
+            isAudioPlaying = false;
+            const playBtn = document.getElementById('btn-play-pause');
+            if (playBtn) playBtn.innerText = "재생";
+        }
+
+        function nextTrack() {
+            if (playlist.length === 0) return;
+            let nextIdx = (currentTrackIndex + 1) % playlist.length;
+            selectTrack(nextIdx);
+        }
+
+        function prevTrack() {
+            if (playlist.length === 0) return;
+            let prevIdx = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+            selectTrack(prevIdx);
+        }
+
+        function removeTrack(index) {
+            playlist.splice(index, 1);
+            if (playlist.length === 0) {
+                stopAudio();
+                audioElement.src = '';
+                const trackNameEl = document.getElementById('current-track-name');
+                if (trackNameEl) trackNameEl.innerText = "재생 중인 곡 없음";
+                const bar = document.getElementById('audio-player-bar');
+                if (bar) bar.classList.add('hidden');
+            } else if (index === currentTrackIndex) {
+                currentTrackIndex = 0;
+                selectTrack(0);
+            } else if (index < currentTrackIndex) {
+                currentTrackIndex--;
+            }
+            renderPlaylist();
+        }
+
+        function changeAudioVolume(val) {
+            audioElement.volume = parseFloat(val);
+        }
+
+        function togglePlaylistDrawer() {
+            const drawer = document.getElementById('playlist-drawer');
+            const arrow = document.getElementById('playlist-arrow');
+            if (!drawer || !arrow) return;
+            if (drawer.classList.contains('hidden')) {
+                drawer.classList.remove('hidden');
+                arrow.innerText = "▲";
+            } else {
+                drawer.classList.add('hidden');
+                arrow.innerText = "▼";
+            }
+        }
+
+        function toggleAudioTitleVisibility(show) {
+            showAudioTitle = show;
+            const trackNameEl = document.getElementById('current-track-name');
+            if (!trackNameEl) return;
+            if (playlist.length > 0) {
+                trackNameEl.innerText = show ? playlist[currentTrackIndex].name : String(currentTrackIndex + 1).padStart(3, '0');
+            }
+            renderPlaylist();
         }
 
 
@@ -904,6 +1362,7 @@
                 memoEditor.style.color = '#ffffff';
             }
             setTitleAlign('center');
+            initAudioPlayerDOM();
             initSeqTimer();
         });
     </script>
