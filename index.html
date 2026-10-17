@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>시험 타이머 및 시계 v2.1</title>
+    <title>시험 타이머 및 시계 v2.2</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -117,17 +117,16 @@
 
         </div>
 
-        <!-- 플레이어 위치 '메모장 아래' 슬롯 -->
+        <!-- 플레이어 위치 '메모장 아래' 슬롯 (PC 전용) -->
         <div id="wrapper-slot-bottom" class="w-full flex flex-col shrink-0"></div>
 
     </div>
 
-    <!-- 설정 사이드바 (v2.1) -->
     <aside id="settings-sidebar" class="fixed top-0 right-0 h-full w-80 md:w-96 bg-white dark:bg-slate-900 border-l border-blue-500/60 dark:border-blue-500/60 p-4 md:p-5 flex flex-col gap-4 shadow-2xl overflow-y-auto z-50 transition-transform duration-300 transform translate-x-full">
         
         <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
             <h2 class="font-bold text-base md:text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                <span>⚙️</span> 제어판 및 설정 (v2.1)
+                <span>⚙️</span> 제어판 및 설정 (v2.2)
             </h2>
             <div class="flex items-center gap-2">
                 <button onclick="toggleTheme()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:scale-105 transition text-slate-800 dark:text-slate-200 shadow-sm" title="테마 전환">
@@ -193,7 +192,7 @@
             </div>
         </div>
 
-        <!-- 3. 시계 및 타이머 글자 크기 설정 (모바일/PC 완벽 조절) -->
+        <!-- 3. 시계 및 타이머 글자 크기 설정 (모바일/PC 조절) -->
         <div class="space-y-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-blue-400/40 dark:border-blue-500/40">
             <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">시계 / 타이머 숫자 크기</label>
             <div class="space-y-1">
@@ -337,10 +336,10 @@
                 🎵 이곳에 MP3 파일을 드래그하여 놓으세요
             </div>
 
-            <!-- 재생바 위치 선택 -->
+            <!-- 재생바 위치 선택 (PC는 3개, 모바일은 메모장 아래 제외 2개 동적 표시) -->
             <div class="space-y-1.5 pt-1">
                 <span class="text-xs text-slate-600 dark:text-slate-400">재생바 위치</span>
-                <div class="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-blue-400/40 dark:border-blue-500/40">
+                <div id="audio-pos-selector-grid" class="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-blue-400/40 dark:border-blue-500/40">
                     <button id="btn-audio-pos-top" onclick="setAudioPosition('top')" class="py-1 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition">시계 위</button>
                     <button id="btn-audio-pos-middle" onclick="setAudioPosition('middle')" class="py-1 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition">시계 아래</button>
                     <button id="btn-audio-pos-bottom" onclick="setAudioPosition('bottom')" class="py-1 rounded-lg font-bold text-xs bg-blue-600 text-white shadow transition">메모장 아래</button>
@@ -476,6 +475,53 @@
             }
         }
 
+        // 모바일 기기일 때 설정창의 '메모장 아래' 버튼 숨김 및 그리드 2열 전환 (PC는 3개 정상 표시)
+        function updateAudioPositionButtonsUI() {
+            const isMobile = isMobileDevice();
+            const grid = document.getElementById('audio-pos-selector-grid');
+            const btnBottom = document.getElementById('btn-audio-pos-bottom');
+
+            if (isMobile) {
+                if (grid) {
+                    grid.classList.remove('grid-cols-3');
+                    grid.classList.add('grid-cols-2');
+                }
+                if (btnBottom) btnBottom.classList.add('hidden');
+
+                // 모바일에서 만약 'bottom'으로 되어 있다면 'middle(시계 아래)'로 자동 교정
+                if (audioPosition === 'bottom') {
+                    audioPosition = 'middle';
+                }
+            } else {
+                if (grid) {
+                    grid.classList.remove('grid-cols-2');
+                    grid.classList.add('grid-cols-3');
+                }
+                if (btnBottom) btnBottom.classList.remove('hidden');
+            }
+
+            // 활성 버튼 스타일 업데이트
+            updateAudioPositionButtonsState();
+        }
+
+        function updateAudioPositionButtonsState() {
+            const btnTop = document.getElementById('btn-audio-pos-top');
+            const btnMid = document.getElementById('btn-audio-pos-middle');
+            const btnBot = document.getElementById('btn-audio-pos-bottom');
+
+            if (btnTop) btnTop.className = "py-1 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition";
+            if (btnMid) btnMid.className = "py-1 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition";
+            if (btnBot) btnBot.className = "py-1 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition";
+
+            if (audioPosition === 'top' && btnTop) {
+                btnTop.className = "py-1 rounded-lg font-bold text-xs bg-blue-600 text-white shadow transition";
+            } else if (audioPosition === 'middle' && btnMid) {
+                btnMid.className = "py-1 rounded-lg font-bold text-xs bg-blue-600 text-white shadow transition";
+            } else if (audioPosition === 'bottom' && btnBot) {
+                btnBot.className = "py-1 rounded-lg font-bold text-xs bg-blue-600 text-white shadow transition";
+            }
+        }
+
         // 플레이어 바 DOM 배치 (음원이 등록되었을 때만 렌더링)
         function initAudioPlayerDOM() {
             const slotTop = document.getElementById('wrapper-slot-top');
@@ -517,26 +563,12 @@
 
             renderPlaylist();
             toggleAudioTitleVisibility(showAudioTitle);
+            updateAudioPositionButtonsUI();
         }
 
         function setAudioPosition(pos) {
             audioPosition = pos;
-            const btnTop = document.getElementById('btn-audio-pos-top');
-            const btnMid = document.getElementById('btn-audio-pos-middle');
-            const btnBot = document.getElementById('btn-audio-pos-bottom');
-
-            btnTop.className = "py-1 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition";
-            btnMid.className = "py-1 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition";
-            btnBot.className = "py-1 rounded-lg font-bold text-xs text-slate-600 dark:text-slate-400 transition";
-
-            if (pos === 'top') {
-                btnTop.className = "py-1 rounded-lg font-bold text-xs bg-blue-600 text-white shadow transition";
-            } else if (pos === 'middle') {
-                btnMid.className = "py-1 rounded-lg font-bold text-xs bg-blue-600 text-white shadow transition";
-            } else {
-                btnBot.className = "py-1 rounded-lg font-bold text-xs bg-blue-600 text-white shadow transition";
-            }
-
+            updateAudioPositionButtonsState();
             initAudioPlayerDOM();
         }
 
@@ -582,6 +614,7 @@
             } else {
                 sidebar.classList.add('translate-x-full');
             }
+            updateAudioPositionButtonsUI();
         }
 
         // 라이트/다크 테마 전환
@@ -663,6 +696,7 @@
 
             // 글자 크기 다시 적용
             changeNumberFontSize(currentFontSizeRem);
+            updateAudioPositionButtonsUI();
         }
 
         // PC 전용 레이아웃 모드 설정 (하단 vs 우측)
@@ -1524,6 +1558,7 @@
             // 반응형 레이아웃 및 폰트 크기 초기화
             applyCurrentLayout();
             changeNumberFontSize(8);
+            updateAudioPositionButtonsUI();
         });
     </script>
 </body>
