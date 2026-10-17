@@ -38,7 +38,7 @@
         <!-- 상단 헤더: 시계 제목 (가로 전체 넉넉하게 확장) 및 설정 사이드바 열기 아이콘 -->
         <header id="main-header" class="w-full flex items-center justify-between shrink-0 px-1 gap-3">
             <div id="title-wrapper" class="flex-1 flex justify-center">
-                <input type="text" id="sidebar-title-input" value="시험 시간표" oninput="updateMainTitle(this.value)" class="w-full bg-transparent hover:bg-slate-200/50 dark:hover:bg-slate-900/50 focus:bg-white dark:focus:bg-slate-900 text-slate-900 dark:text-white font-bold text-lg md:text-2xl px-4 py-1.5 rounded-2xl border border-transparent focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none transition text-center shadow-none" style="text-align: center;">
+                <input type="text" id="sidebar-title-input" value="시험 시간표" oninput="updateMainTitle(this.value)" class="w-full bg-transparent hover:bg-slate-200/50 dark:hover:bg-slate-900/50 focus:bg-white dark:focus:bg-slate-900 text-slate-900 dark:text-white font-bold text-lg md:text-2xl px-4 py-1.5 rounded-2xl border border-transparent focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none transition shadow-none" style="text-align: center;">
             </div>
             <div class="flex items-center gap-2 shrink-0">
                 <button onclick="toggleSidebar()" class="p-2 md:p-2.5 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-blue-500/60 dark:border-blue-500/60 transition shadow-sm" title="설정">
@@ -53,52 +53,57 @@
         <!-- 중앙 콘텐츠 영역 (메모장 위치 모드에 따라 flex-col 또는 flex-row 동적 변경) -->
         <div id="content-layout-wrapper" class="flex-1 flex flex-col gap-2.5 overflow-hidden">
             
-            <!-- 시계/타이머 메인 패널 -->
-            <div id="main-display-panel" class="flex-1 flex flex-col items-center justify-center p-3 md:p-6 bg-white dark:bg-slate-900 border border-blue-500/60 dark:border-blue-500/60 rounded-3xl shadow-lg relative overflow-hidden" style="flex: 1;">
+            <!-- 시계/타이머 메인 패널 래퍼 (우측 배치 시 너비 제한을 위해 사용) -->
+            <div id="main-panel-wrapper" class="flex-1 flex flex-col gap-2.5 overflow-hidden" style="flex: 1;">
                 
-                <!-- 1. 현재 시각 뷰 -->
-                <div id="view-clock-container" class="w-full flex flex-col items-center justify-center hidden">
-                    <div id="clock-date" class="text-slate-500 dark:text-slate-400 font-semibold text-base md:text-xl mb-1 tracking-wide">2026년 10월 17일 토요일</div>
-                    <div class="flex items-baseline justify-center gap-2 md:gap-3">
-                        <div id="clock-ampm" class="text-blue-600 dark:text-blue-400 font-extrabold text-xl md:text-3xl tracking-widest uppercase">오전</div>
-                        <div id="clock-time" class="font-black tracking-wider text-slate-900 dark:text-white" style="font-size: 8rem; line-height: 1;">08:12</div>
-                    </div>
-                </div>
-
-                <!-- 2. 단일 타이머 뷰 -->
-                <div id="view-timer-container" class="w-full flex flex-col items-center justify-center">
-                    <div id="timer-inner-layout" class="flex flex-row items-center justify-center gap-4 md:gap-8">
-                        <div id="timer-display" contenteditable="true" onblur="syncEditableTimer(this.innerText)" class="font-black tracking-wider text-slate-900 dark:text-white py-2 text-center outline-none border-b-2 border-dashed border-transparent hover:border-blue-400 transition" style="font-size: 8rem; line-height: 1;" title="클릭하여 직접 시간을 입력할 수 있습니다">10:00</div>
-
-                        <div id="timer-controls-wrapper" class="flex flex-col items-center justify-center gap-2.5">
-                            <button id="btn-timer-toggle" onclick="toggleTimer()" class="w-24 md:w-28 py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-sm md:text-base text-center">시작</button>
-                            <button onclick="resetTimer()" class="w-24 md:w-28 py-2.5 md:py-3 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold rounded-2xl border border-blue-600 dark:border-blue-500 shadow transition transform active:scale-95 text-sm md:text-base text-center">초기화</button>
+                <!-- 시계/타이머 메인 패널 -->
+                <div id="main-display-panel" class="flex-1 flex flex-col items-center justify-center p-3 md:p-6 bg-white dark:bg-slate-900 border border-blue-500/60 dark:border-blue-500/60 rounded-3xl shadow-lg relative overflow-hidden" style="flex: 1;">
+                    
+                    <!-- 1. 현재 시각 뷰 -->
+                    <div id="view-clock-container" class="w-full flex flex-col items-center justify-center hidden">
+                        <div id="clock-date" class="text-slate-500 dark:text-slate-400 font-semibold text-base md:text-xl mb-1 tracking-wide">2026년 10월 17일 토요일</div>
+                        <div class="flex items-baseline justify-center gap-2 md:gap-3">
+                            <div id="clock-ampm" class="text-blue-600 dark:text-blue-400 font-extrabold text-xl md:text-3xl tracking-widest uppercase">오전</div>
+                            <div id="clock-time" class="font-black tracking-wider text-slate-900 dark:text-white" style="font-size: 8rem; line-height: 1;">08:12</div>
                         </div>
                     </div>
-                </div>
 
-                <!-- 3. 연속 타이머 뷰 -->
-                <div id="view-seq-timer-container" class="w-full flex flex-col items-center justify-center hidden">
-                    <div class="mb-2 md:mb-3 px-4 py-1 bg-blue-50 dark:bg-blue-950/50 border border-blue-500/40 rounded-full flex items-center gap-2">
-                        <span id="seq-step-badge" class="text-xs font-bold text-blue-600 dark:text-blue-400">타이머 1 / 3</span>
-                        <span class="text-xs text-slate-400">|</span>
-                        <span id="seq-mode-badge" class="text-xs font-semibold text-slate-600 dark:text-slate-300">자동 진행</span>
-                    </div>
+                    <!-- 2. 단일 타이머 뷰 -->
+                    <div id="view-timer-container" class="w-full flex flex-col items-center justify-center">
+                        <div id="timer-inner-layout" class="flex flex-row items-center justify-center gap-4 md:gap-8">
+                            <div id="timer-display" contenteditable="true" onblur="syncEditableTimer(this.innerText)" class="font-black tracking-wider text-slate-900 dark:text-white py-2 text-center outline-none border-b-2 border-dashed border-transparent hover:border-blue-400 transition" style="font-size: 8rem; line-height: 1;" title="클릭하여 직접 시간을 입력할 수 있습니다">10:00</div>
 
-                    <div id="seq-timer-inner-layout" class="flex flex-row items-center justify-center gap-4 md:gap-8">
-                        <div id="seq-timer-display" class="font-black tracking-wider text-slate-900 dark:text-white py-2 text-center" style="font-size: 8rem; line-height: 1;">00:00</div>
-
-                        <div id="seq-timer-controls-wrapper" class="flex flex-col items-center justify-center gap-2.5">
-                            <button id="btn-seq-toggle" onclick="toggleSeqTimer()" class="w-24 md:w-28 py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-sm md:text-base text-center">시작</button>
-                            <button onclick="resetSeqTimer()" class="w-24 md:w-28 py-2.5 md:py-3 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold rounded-2xl border border-blue-600 dark:border-blue-500 shadow transition transform active:scale-95 text-sm md:text-base text-center">초기화</button>
+                            <div id="timer-controls-wrapper" class="flex flex-col items-center justify-center gap-2.5">
+                                <button id="btn-timer-toggle" onclick="toggleTimer()" class="w-24 md:w-28 py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-sm md:text-base text-center">시작</button>
+                                <button onclick="resetTimer()" class="w-24 md:w-28 py-2.5 md:py-3 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold rounded-2xl border border-blue-600 dark:border-blue-500 shadow transition transform active:scale-95 text-sm md:text-base text-center">초기화</button>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- 3. 연속 타이머 뷰 -->
+                    <div id="view-seq-timer-container" class="w-full flex flex-col items-center justify-center hidden">
+                        <div class="mb-2 md:mb-3 px-4 py-1 bg-blue-50 dark:bg-blue-950/50 border border-blue-500/40 rounded-full flex items-center gap-2">
+                            <span id="seq-step-badge" class="text-xs font-bold text-blue-600 dark:text-blue-400">타이머 1 / 3</span>
+                            <span class="text-xs text-slate-400">|</span>
+                            <span id="seq-mode-badge" class="text-xs font-semibold text-slate-600 dark:text-slate-300">자동 진행</span>
+                        </div>
+
+                        <div id="seq-timer-inner-layout" class="flex flex-row items-center justify-center gap-4 md:gap-8">
+                            <div id="seq-timer-display" class="font-black tracking-wider text-slate-900 dark:text-white py-2 text-center" style="font-size: 8rem; line-height: 1;">00:00</div>
+
+                            <div id="seq-timer-controls-wrapper" class="flex flex-col items-center justify-center gap-2.5">
+                                <button id="btn-seq-toggle" onclick="toggleSeqTimer()" class="w-24 md:w-28 py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-sm md:text-base text-center">시작</button>
+                                <button onclick="resetSeqTimer()" class="w-24 md:w-28 py-2.5 md:py-3 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold rounded-2xl border border-blue-600 dark:border-blue-500 shadow transition transform active:scale-95 text-sm md:text-base text-center">초기화</button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
+
+                <!-- 전체 컨텐츠 영역 래퍼 (플레이어 위치 '시계 아래'인 경우 여기에 들어감) -->
+                <div id="wrapper-slot-middle" class="w-full flex flex-col shrink-0"></div>
 
             </div>
-
-            <!-- 전체 컨텐츠 영역 래퍼 (플레이어 위치 '시계 아래'인 경우 여기에 들어감) -->
-            <div id="wrapper-slot-middle" class="w-full flex flex-col shrink-0"></div>
 
             <!-- 메모장 박스 -->
             <div id="memo-container" class="bg-white dark:bg-slate-900 border border-blue-500/60 dark:border-blue-500/60 rounded-3xl p-3 md:p-4 shadow-lg flex flex-col shrink-0 transition-all" style="height: 40vh; width: 100%;">
@@ -511,7 +516,9 @@
                 memoContainer.classList.add('hidden');
                 subgroup.classList.add('opacity-50', 'pointer-events-none');
                 const wrapper = document.getElementById('content-layout-wrapper');
+                const mainWrapper = document.getElementById('main-panel-wrapper');
                 wrapper.className = "flex-1 flex flex-col gap-2.5 overflow-hidden";
+                mainWrapper.style.width = "100%";
                 const timerInnerLayout = document.getElementById('timer-inner-layout');
                 const seqInnerLayout = document.getElementById('seq-timer-inner-layout');
                 timerInnerLayout.className = "flex flex-row items-center justify-center gap-4 md:gap-8";
@@ -551,6 +558,7 @@
             if (!isMemoVisible) return;
             currentLayoutMode = mode;
             const wrapper = document.getElementById('content-layout-wrapper');
+            const mainWrapper = document.getElementById('main-panel-wrapper');
             const memoContainer = document.getElementById('memo-container');
             const timerInnerLayout = document.getElementById('timer-inner-layout');
             const seqInnerLayout = document.getElementById('seq-timer-inner-layout');
@@ -562,6 +570,8 @@
 
             if (mode === 'bottom') {
                 wrapper.className = "flex-1 flex flex-col gap-2.5 overflow-hidden";
+                mainWrapper.style.width = "100%";
+                mainWrapper.style.flex = "1";
                 memoContainer.style.height = memoSizeRange.value + 'vh';
                 memoContainer.style.width = "100%";
                 timerInnerLayout.className = "flex flex-row items-center justify-center gap-4 md:gap-8";
@@ -572,27 +582,35 @@
                 memoSizeLabel.innerText = memoSizeRange.value + '%';
             } else {
                 wrapper.className = "flex-1 flex flex-col md:flex-row gap-2.5 overflow-hidden";
+                const rightWidth = parseFloat(memoSizeRange.value);
+                const leftWidth = 100 - rightWidth;
+                mainWrapper.style.width = leftWidth + '%';
+                mainWrapper.style.flex = "none";
                 memoContainer.style.height = "100%";
-                memoContainer.style.width = memoSizeRange.value + '%';
-                timerInnerLayout.className = "flex flex-col items-center justify-center gap-4";
-                seqInnerLayout.className = "flex flex-col items-center justify-center gap-4";
+                memoContainer.style.width = rightWidth + '%';
+                timerInnerLayout.className = "flex flex-row items-center justify-center gap-4 md:gap-8";
+                seqInnerLayout.className = "flex flex-row items-center justify-center gap-4 md:gap-8";
                 btnRight.className = "py-2 rounded-lg font-bold text-xs transition bg-blue-600 text-white shadow";
                 btnBottom.className = "py-2 rounded-lg font-bold text-xs transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200";
                 memoSizeTitle.innerText = "메모장 너비 비율";
-                memoSizeLabel.innerText = memoSizeRange.value + '%';
+                memoSizeLabel.innerText = rightWidth + '%';
             }
         }
 
         // 메모장 크기 슬라이더 조절
         function changeMemoSize(val) {
             const memoContainer = document.getElementById('memo-container');
+            const mainWrapper = document.getElementById('main-panel-wrapper');
             const memoSizeLabel = document.getElementById('memo-size-label');
             memoSizeLabel.innerText = val + '%';
 
             if (currentLayoutMode === 'bottom') {
                 memoContainer.style.height = val + '%';
             } else {
-                memoContainer.style.width = val + '%';
+                const rightWidth = parseFloat(val);
+                const leftWidth = 100 - rightWidth;
+                memoContainer.style.width = rightWidth + '%';
+                mainWrapper.style.width = leftWidth + '%';
             }
         }
 
@@ -1070,6 +1088,8 @@
 
         function processFiles(files) {
             let addedCount = 0;
+            const wasEmpty = (playlist.length === 0);
+
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 if (file.type.includes('audio') || file.name.endsWith('.mp3')) {
@@ -1084,8 +1104,7 @@
                 const bar = document.getElementById('audio-player-bar');
                 if (bar) bar.classList.remove('hidden');
 
-                // 업로드 직후 자동 재생되지 않도록 수정 (사용자가 재생 버튼을 누를 때까지 대기)
-                if (playlist.length === addedCount) {
+                if (wasEmpty) {
                     currentTrackIndex = 0;
                     audioElement.src = playlist[0].url;
                     const trackNameEl = document.getElementById('current-track-name');
@@ -1114,7 +1133,6 @@
             const movedItem = playlist.splice(draggedTrackIndex, 1)[0];
             playlist.splice(targetIndex, 0, movedItem);
 
-            // 현재 재생 중인 곡 인덱스 보정
             if (currentTrackIndex === draggedTrackIndex) {
                 currentTrackIndex = targetIndex;
             } else if (draggedTrackIndex < currentTrackIndex && targetIndex >= currentTrackIndex) {
@@ -1148,7 +1166,7 @@
 
                 sidebarHtml += `
                     <div draggable="true" ondragstart="onPlaylistDragStart(event, ${index})" ondragover="onPlaylistDragOver(event)" ondrop="onPlaylistDrop(event, ${index})" class="flex items-center justify-between p-2 rounded-xl border ${activeClass} text-xs cursor-grab active:cursor-grabbing">
-                        <div class="flex items-center gap-2 truncate flex-1" onclick="selectTrack(${index})">
+                        <div class="flex items-center gap-2 truncate flex-1" onclick="selectTrack(${index})" ondblclick="playSelectedTrack(${index})">
                             <span class="text-slate-400">☰</span>
                             <span class="truncate">${displayName}</span>
                         </div>
@@ -1158,7 +1176,7 @@
 
                 drawerHtml += `
                     <div draggable="true" ondragstart="onPlaylistDragStart(event, ${index})" ondragover="onPlaylistDragOver(event)" ondrop="onPlaylistDrop(event, ${index})" class="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-grab active:cursor-grabbing ${isActive ? 'text-blue-600 dark:text-blue-400 font-bold bg-blue-50/50 dark:bg-blue-950/30' : 'text-slate-700 dark:text-slate-300'}">
-                        <div class="flex items-center gap-2 truncate flex-1" onclick="selectTrack(${index})">
+                        <div class="flex items-center gap-2 truncate flex-1" onclick="selectTrack(${index})" ondblclick="playSelectedTrack(${index})">
                             <span class="text-slate-400">☰</span>
                             <span class="truncate">${displayName}</span>
                         </div>
@@ -1171,6 +1189,7 @@
             if (drawerContainer) drawerContainer.innerHTML = drawerHtml;
         }
 
+        // 단일 클릭 시에는 선택만 (재생하지 않음)
         function selectTrack(index) {
             if (index < 0 || index >= playlist.length) return;
             currentTrackIndex = index;
@@ -1179,7 +1198,12 @@
             if (trackNameEl) {
                 trackNameEl.innerText = showAudioTitle ? playlist[currentTrackIndex].name : String(index + 1).padStart(3, '0');
             }
-            
+            renderPlaylist();
+        }
+
+        // 더블클릭 시 선택 및 즉시 재생
+        function playSelectedTrack(index) {
+            selectTrack(index);
             audioElement.play().then(() => {
                 isAudioPlaying = true;
                 const playBtn = document.getElementById('btn-play-pause');
@@ -1189,14 +1213,12 @@
                     console.error("Playback error:", err);
                 }
             });
-            renderPlaylist();
         }
 
         function togglePlayAudio() {
             if (playlist.length === 0) return;
             if (!audioElement.src) {
                 selectTrack(0);
-                return;
             }
 
             const playBtn = document.getElementById('btn-play-pause');
@@ -1228,12 +1250,18 @@
             if (playlist.length === 0) return;
             let nextIdx = (currentTrackIndex + 1) % playlist.length;
             selectTrack(nextIdx);
+            if (isAudioPlaying) {
+                audioElement.play().catch(e => {});
+            }
         }
 
         function prevTrack() {
             if (playlist.length === 0) return;
             let prevIdx = (currentTrackIndex - 1 + playlist.length) % playlist.length;
             selectTrack(prevIdx);
+            if (isAudioPlaying) {
+                audioElement.play().catch(e => {});
+            }
         }
 
         function removeTrack(index) {
