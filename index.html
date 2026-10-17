@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>시험 타이머 및 시계 v2.2</title>
+    <title>시험 타이머 및 시계 v2.3</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -34,71 +34,93 @@
             line-height: 1;
             font-size: var(--clock-font-size, 8rem);
         }
+
+        /* 모바일 화면에서 외곽선 박스 및 여백 완전 제거 (화면 가득 채움) */
+        @media (max-width: 767px) {
+            .mobile-edge-to-edge {
+                padding: 0 !important;
+                margin: 0 !important;
+                gap: 0.25rem !important;
+            }
+            .mobile-borderless-panel {
+                border: none !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+            }
+            .mobile-borderless-header {
+                padding-left: 0.25rem !important;
+                padding-right: 0.25rem !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-screen w-screen overflow-hidden flex flex-col select-none transition-colors duration-300">
 
-    <div id="app-container" class="flex-1 flex flex-col h-full w-full p-2 md:p-5 gap-2 overflow-hidden relative">
+    <div id="app-container" class="flex-1 flex flex-col h-full w-full p-2.5 md:p-5 gap-2.5 overflow-hidden relative mobile-edge-to-edge">
         
-        <!-- 상단 헤더: 제목(선택 표시) 및 설정 사이드바 열기 아이콘 -->
-        <header id="main-header" class="w-full flex items-center justify-between shrink-0 px-1 gap-2">
+        <!-- 상단 헤더: 제목 입력창 및 항상 유지되는 설정 버튼 -->
+        <header id="main-header" class="w-full flex items-center justify-between shrink-0 px-1 gap-2 mobile-borderless-header">
+            <!-- 제목 래퍼: 제목 숨김 시 이 부분만 감춰지며 설정 버튼은 상단 우측에 온전히 유지됨 -->
             <div id="title-wrapper" class="flex-1 flex justify-center">
-                <input type="text" id="sidebar-title-input" value="시험 시간표" oninput="updateMainTitle(this.value)" class="w-full bg-transparent hover:bg-slate-200/50 dark:hover:bg-slate-900/50 focus:bg-white dark:focus:bg-slate-900 text-slate-900 dark:text-white font-bold text-base md:text-2xl px-3 py-1 md:py-1.5 rounded-2xl border border-transparent focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none transition shadow-none" style="text-align: center;">
+                <input type="text" id="sidebar-title-input" value="시험 시간표" oninput="updateMainTitle(this.value)" class="w-full bg-transparent hover:bg-slate-200/50 dark:hover:bg-slate-900/50 focus:bg-white dark:focus:bg-slate-900 text-slate-900 dark:text-white font-bold text-base md:text-2xl px-2 md:px-4 py-1 md:py-1.5 rounded-2xl border border-transparent focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none transition shadow-none" style="text-align: center;">
             </div>
-            <div class="flex items-center gap-2 shrink-0">
-                <button onclick="toggleSidebar()" class="p-2 md:p-2.5 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-blue-500/60 dark:border-blue-500/60 transition shadow-sm" title="설정">
+            
+            <!-- 설정 사이드바 열기 버튼 (제목 숨김 여부와 관계없이 항상 화면 상단 우측에 유지됨) -->
+            <div class="flex items-center gap-2 shrink-0 z-30">
+                <button onclick="toggleSidebar()" class="p-2 md:p-2.5 rounded-2xl bg-white/90 dark:bg-slate-900/90 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 border border-blue-500/60 dark:border-blue-500/60 transition shadow-sm backdrop-blur-sm" title="설정">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 </button>
             </div>
         </header>
 
         <!-- 플레이어 위치 '시계 위' 슬롯 -->
-        <div id="wrapper-slot-top" class="w-full flex flex-col shrink-0"></div>
+        <div id="wrapper-slot-top" class="w-full flex flex-col shrink-0 px-1 md:px-0"></div>
 
         <!-- 중앙 콘텐츠 영역 -->
-        <div id="content-layout-wrapper" class="flex-1 flex flex-col gap-2 overflow-hidden">
+        <div id="content-layout-wrapper" class="flex-1 flex flex-col gap-2 md:gap-2.5 overflow-hidden">
             
             <!-- 시계/타이머 메인 패널 래퍼 -->
-            <div id="main-panel-wrapper" class="flex-1 flex flex-col gap-2 overflow-hidden" style="flex: 1; width: 100%;">
+            <div id="main-panel-wrapper" class="flex-1 flex flex-col gap-2 md:gap-2.5 overflow-hidden" style="flex: 1; width: 100%;">
                 
-                <!-- 시계/타이머 메인 패널 -->
-                <div id="main-display-panel" class="flex-1 flex flex-col items-center justify-center p-2 sm:p-4 md:p-6 bg-white dark:bg-slate-900 border border-blue-500/60 dark:border-blue-500/60 rounded-3xl shadow-lg relative overflow-hidden" style="flex: 1;">
+                <!-- 시계/타이머 메인 패널: PC는 박스 스타일 유지, 모바일은 여백/테두리/박스 제거하여 화면 최대로 확장 -->
+                <div id="main-display-panel" class="flex-1 flex flex-col items-center justify-center p-1 md:p-6 bg-white dark:bg-slate-900 border border-blue-500/60 dark:border-blue-500/60 rounded-3xl shadow-lg relative overflow-hidden mobile-borderless-panel" style="flex: 1;">
                     
                     <!-- 1. 현재 시각 뷰 -->
                     <div id="view-clock-container" class="w-full flex flex-col items-center justify-center hidden">
-                        <div id="clock-date" class="text-slate-500 dark:text-slate-400 font-semibold text-sm sm:text-base md:text-xl mb-1 tracking-wide">2026년 10월 18일 일요일</div>
+                        <div id="clock-date" class="text-slate-500 dark:text-slate-400 font-semibold text-xs sm:text-base md:text-xl mb-1 tracking-wide">2026년 10월 18일 일요일</div>
                         <div class="flex items-baseline justify-center gap-2 md:gap-3">
-                            <div id="clock-ampm" class="text-blue-600 dark:text-blue-400 font-extrabold text-lg sm:text-xl md:text-3xl tracking-widest uppercase">오전</div>
+                            <div id="clock-ampm" class="text-blue-600 dark:text-blue-400 font-extrabold text-base sm:text-xl md:text-3xl tracking-widest uppercase">오전</div>
                             <div id="clock-time" class="clock-num-text font-black tracking-wider text-slate-900 dark:text-white">00:00</div>
                         </div>
                     </div>
 
                     <!-- 2. 단일 타이머 뷰 (기본 화면 10:00) -->
                     <div id="view-timer-container" class="w-full flex flex-col items-center justify-center">
-                        <div id="timer-inner-layout" class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 md:gap-8">
-                            <div id="timer-display" contenteditable="true" onblur="syncEditableTimer(this.innerText)" class="clock-num-text font-black tracking-wider text-slate-900 dark:text-white py-1 sm:py-2 text-center outline-none border-b-2 border-dashed border-transparent hover:border-blue-400 transition" title="클릭하여 직접 시간을 입력할 수 있습니다">10:00</div>
+                        <div id="timer-inner-layout" class="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-8">
+                            <div id="timer-display" contenteditable="true" onblur="syncEditableTimer(this.innerText)" class="clock-num-text font-black tracking-wider text-slate-900 dark:text-white py-1 md:py-2 text-center outline-none border-b-2 border-dashed border-transparent hover:border-blue-400 transition" title="클릭하여 직접 시간을 입력할 수 있습니다">10:00</div>
 
-                            <div id="timer-controls-wrapper" class="flex flex-row sm:flex-col items-center justify-center gap-2 sm:gap-2.5">
-                                <button id="btn-timer-toggle" onclick="toggleTimer()" class="w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center">시작</button>
-                                <button onclick="resetTimer()" class="w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold rounded-2xl border border-blue-600 dark:border-blue-500 shadow transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center">초기화</button>
+                            <div id="timer-controls-wrapper" class="flex flex-row md:flex-col items-center justify-center gap-2 md:gap-2.5">
+                                <button id="btn-timer-toggle" onclick="toggleTimer()" class="w-20 md:w-28 py-2 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center">시작</button>
+                                <button onclick="resetTimer()" class="w-20 md:w-28 py-2 md:py-3 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold rounded-2xl border border-blue-600 dark:border-blue-500 shadow transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center">초기화</button>
                             </div>
                         </div>
                     </div>
 
                     <!-- 3. 연속 타이머 뷰 -->
                     <div id="view-seq-timer-container" class="w-full flex flex-col items-center justify-center hidden">
-                        <div class="mb-2 md:mb-3 px-3 sm:px-4 py-0.5 sm:py-1 bg-blue-50 dark:bg-blue-950/50 border border-blue-500/40 rounded-full flex items-center gap-2">
-                            <span id="seq-step-badge" class="text-[11px] sm:text-xs font-bold text-blue-600 dark:text-blue-400">타이머 1 / 6</span>
+                        <div class="mb-1.5 md:mb-3 px-3 md:px-4 py-0.5 md:py-1 bg-blue-50 dark:bg-blue-950/50 border border-blue-500/40 rounded-full flex items-center gap-2">
+                            <span id="seq-step-badge" class="text-[11px] md:text-xs font-bold text-blue-600 dark:text-blue-400">타이머 1 / 6</span>
                             <span class="text-xs text-slate-400">|</span>
-                            <span id="seq-mode-badge" class="text-[11px] sm:text-xs font-semibold text-slate-600 dark:text-slate-300">자동 진행</span>
+                            <span id="seq-mode-badge" class="text-[11px] md:text-xs font-semibold text-slate-600 dark:text-slate-300">자동 진행</span>
                         </div>
 
-                        <div id="seq-timer-inner-layout" class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 md:gap-8">
-                            <div id="seq-timer-display" class="clock-num-text font-black tracking-wider text-slate-900 dark:text-white py-1 sm:py-2 text-center">03:02</div>
+                        <div id="seq-timer-inner-layout" class="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-8">
+                            <div id="seq-timer-display" class="clock-num-text font-black tracking-wider text-slate-900 dark:text-white py-1 md:py-2 text-center">03:02</div>
 
-                            <div id="seq-timer-controls-wrapper" class="flex flex-row sm:flex-col items-center justify-center gap-2 sm:gap-2.5">
-                                <button id="btn-seq-toggle" onclick="toggleSeqTimer()" class="w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center">시작</button>
-                                <button onclick="resetSeqTimer()" class="w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold rounded-2xl border border-blue-600 dark:border-blue-500 shadow transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center">초기화</button>
+                            <div id="seq-timer-controls-wrapper" class="flex flex-row md:flex-col items-center justify-center gap-2 md:gap-2.5">
+                                <button id="btn-seq-toggle" onclick="toggleSeqTimer()" class="w-20 md:w-28 py-2 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center">시작</button>
+                                <button onclick="resetSeqTimer()" class="w-20 md:w-28 py-2 md:py-3 bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold rounded-2xl border border-blue-600 dark:border-blue-500 shadow transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center">초기화</button>
                             </div>
                         </div>
                     </div>
@@ -106,7 +128,7 @@
                 </div>
 
                 <!-- 플레이어 위치 '시계 아래' 슬롯 -->
-                <div id="wrapper-slot-middle" class="w-full flex flex-col shrink-0"></div>
+                <div id="wrapper-slot-middle" class="w-full flex flex-col shrink-0 px-1 md:px-0"></div>
 
             </div>
 
@@ -118,7 +140,7 @@
         </div>
 
         <!-- 플레이어 위치 '메모장 아래' 슬롯 (PC 전용) -->
-        <div id="wrapper-slot-bottom" class="w-full flex flex-col shrink-0"></div>
+        <div id="wrapper-slot-bottom" class="w-full flex flex-col shrink-0 px-1 md:px-0"></div>
 
     </div>
 
@@ -126,7 +148,7 @@
         
         <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
             <h2 class="font-bold text-base md:text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                <span>⚙️</span> 제어판 및 설정 (v2.2)
+                <span>⚙️</span> 제어판 및 설정 (v2.3)
             </h2>
             <div class="flex items-center gap-2">
                 <button onclick="toggleTheme()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:scale-105 transition text-slate-800 dark:text-slate-200 shadow-sm" title="테마 전환">
@@ -149,7 +171,7 @@
             </div>
         </div>
 
-        <!-- 2. 시계 제목 설정 (표시 여부 선택 지원) -->
+        <!-- 2. 시계 제목 설정 (표시 여부 선택 지원 - 비활성화해도 설정 버튼은 유지됨) -->
         <div class="space-y-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-2xl border border-blue-400/40 dark:border-blue-500/40">
             <div class="flex items-center justify-between">
                 <label class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">시계 제목 표시</label>
@@ -336,7 +358,7 @@
                 🎵 이곳에 MP3 파일을 드래그하여 놓으세요
             </div>
 
-            <!-- 재생바 위치 선택 (PC는 3개, 모바일은 메모장 아래 제외 2개 동적 표시) -->
+            <!-- 재생바 위치 선택 (PC는 3개, 모바일은 메모장 아래가 영구 삭제되어 2개만 표시) -->
             <div class="space-y-1.5 pt-1">
                 <span class="text-xs text-slate-600 dark:text-slate-400">재생바 위치</span>
                 <div id="audio-pos-selector-grid" class="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-blue-400/40 dark:border-blue-500/40">
@@ -385,7 +407,7 @@
 
     <!-- 공통 오디오 플레이어 바 템플릿 (음원이 등록되었을 때만 생성/표시됨) -->
     <template id="audio-player-template">
-        <div id="audio-player-bar" class="w-full bg-white dark:bg-slate-900 border border-blue-500/60 dark:border-blue-500/60 rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 shadow-md flex flex-col gap-1.5 sm:gap-2 shrink-0">
+        <div id="audio-player-bar" class="w-full bg-white dark:bg-slate-900 border border-blue-500/60 dark:border-blue-500/60 rounded-2xl px-2.5 sm:px-4 py-2 sm:py-2.5 shadow-md flex flex-col gap-1.5 sm:gap-2 shrink-0">
             <!-- 상단 컨트롤 행 -->
             <div class="flex items-center justify-between w-full gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
                 <div id="audio-track-info-wrapper" class="flex items-center gap-1.5 sm:gap-2 overflow-hidden shrink-0 max-w-[50%] sm:max-w-none">
@@ -459,23 +481,23 @@
             return (hasTouch && isMobileUA) || isNarrow;
         }
 
-        // 제목 표시 토글 (시계 화면에 집중하기 위한 온/오프)
+        // 제목 표시 토글 (제목 라인만 숨기고, 설정 버튼은 항상 접근 가능)
         function toggleTitleVisibility(show) {
             isTitleVisible = show;
-            const header = document.getElementById('main-header');
+            const titleWrapper = document.getElementById('title-wrapper');
             const subgroup = document.getElementById('title-settings-subgroup');
-            if (header) {
+            if (titleWrapper) {
                 if (show) {
-                    header.classList.remove('hidden');
+                    titleWrapper.classList.remove('hidden');
                     if (subgroup) subgroup.classList.remove('opacity-50', 'pointer-events-none');
                 } else {
-                    header.classList.add('hidden');
+                    titleWrapper.classList.add('hidden');
                     if (subgroup) subgroup.classList.add('opacity-50', 'pointer-events-none');
                 }
             }
         }
 
-        // 모바일 기기일 때 설정창의 '메모장 아래' 버튼 숨김 및 그리드 2열 전환 (PC는 3개 정상 표시)
+        // 모바일 기기일 때 설정창의 '메모장 아래' 버튼 완전 삭제 및 2열 그리드로 전환
         function updateAudioPositionButtonsUI() {
             const isMobile = isMobileDevice();
             const grid = document.getElementById('audio-pos-selector-grid');
@@ -488,7 +510,7 @@
                 }
                 if (btnBottom) btnBottom.classList.add('hidden');
 
-                // 모바일에서 만약 'bottom'으로 되어 있다면 'middle(시계 아래)'로 자동 교정
+                // 모바일에서 만약 'bottom'으로 되어 있다면 'middle(시계 아래)'로 교정
                 if (audioPosition === 'bottom') {
                     audioPosition = 'middle';
                 }
@@ -599,7 +621,7 @@
                     subgroup.classList.add('opacity-50', 'pointer-events-none');
                     const wrapper = document.getElementById('content-layout-wrapper');
                     const mainWrapper = document.getElementById('main-panel-wrapper');
-                    wrapper.className = "flex-1 flex flex-col gap-2 overflow-hidden";
+                    wrapper.className = "flex-1 flex flex-col gap-2.5 overflow-hidden";
                     mainWrapper.style.width = "100%";
                     mainWrapper.style.flex = "1";
                 }
@@ -644,26 +666,33 @@
             const memoSizeRange = document.getElementById('memo-size-range');
             const memoSizeTitle = document.getElementById('memo-size-title');
             const memoSizeLabel = document.getElementById('memo-size-label');
+            const mainPanel = document.getElementById('main-display-panel');
 
             if (isMobile) {
-                // 모바일 환경: 가로/세로 상관없이 메모장 완전 제거 & 타이머가 화면 전체를 가득 채움
-                wrapper.className = "flex-1 flex flex-col gap-2 overflow-hidden";
+                // 모바일 환경: 여백 및 테두리/박스 완전 제거, 타이머가 화면 전체를 채움
+                wrapper.className = "flex-1 flex flex-col gap-1 overflow-hidden";
                 mainWrapper.style.width = "100%";
                 mainWrapper.style.flex = "1";
+                if (mainPanel) {
+                    mainPanel.classList.add('mobile-borderless-panel');
+                }
                 if (memoContainer) {
                     memoContainer.classList.add('hidden');
                     memoContainer.classList.remove('flex');
                 }
                 if (memoSettingsCard) {
-                    memoSettingsCard.classList.add('hidden'); // 모바일에서는 설정창의 메모장 카드도 숨김
+                    memoSettingsCard.classList.add('hidden');
                 }
             } else {
-                // PC 환경: 메모장 설정 카드 표시 및 레이아웃 적용
+                // PC 환경: 완벽한 기존 레이아웃 유지
+                if (mainPanel) {
+                    mainPanel.classList.remove('mobile-borderless-panel');
+                }
                 if (memoSettingsCard) {
                     memoSettingsCard.classList.remove('hidden');
                 }
                 if (!isMemoVisible) {
-                    wrapper.className = "flex-1 flex flex-col gap-2 overflow-hidden";
+                    wrapper.className = "flex-1 flex flex-col gap-2.5 overflow-hidden";
                     mainWrapper.style.width = "100%";
                     mainWrapper.style.flex = "1";
                     memoContainer.classList.add('hidden');
@@ -963,7 +992,7 @@
                 isRunning = true;
                 displayEl.setAttribute('contenteditable', 'false');
                 btn.innerText = "일시정지";
-                btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
+                btn.className = "w-20 md:w-28 py-2 md:py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
 
                 timerInterval = setInterval(() => {
                     if (totalSeconds > 0) {
@@ -975,7 +1004,7 @@
                         isRunning = false;
                         displayEl.setAttribute('contenteditable', 'true');
                         btn.innerText = "시작";
-                        btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
+                        btn.className = "w-20 md:w-28 py-2 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
                         playAlarmSound();
                     }
                 }, 1000);
@@ -984,7 +1013,7 @@
                 isRunning = false;
                 displayEl.setAttribute('contenteditable', 'true');
                 btn.innerText = "이어하기";
-                btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
+                btn.className = "w-20 md:w-28 py-2 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
             }
         }
 
@@ -997,7 +1026,7 @@
             renderTimerDisplay();
             const btn = document.getElementById('btn-timer-toggle');
             btn.innerText = "시작";
-            btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
+            btn.className = "w-20 md:w-28 py-2 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
         }
 
         // --- 연속 타이머 (Sequential Timer) 로직 ---
@@ -1096,7 +1125,7 @@
 
                 seqIsRunning = true;
                 btn.innerText = "일시정지";
-                btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
+                btn.className = "w-20 md:w-28 py-2 md:py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
 
                 seqInterval = setInterval(() => {
                     if (seqSecondsLeft > 0) {
@@ -1119,11 +1148,11 @@
                                 }, 1000);
                             } else {
                                 btn.innerText = "다음 시작";
-                                btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
+                                btn.className = "w-20 md:w-28 py-2 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
                             }
                         } else {
                             btn.innerText = "완료됨";
-                            btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-slate-600 text-white font-bold rounded-2xl shadow-md text-xs sm:text-sm md:text-base text-center cursor-not-allowed";
+                            btn.className = "w-20 md:w-28 py-2 md:py-3 bg-slate-600 text-white font-bold rounded-2xl shadow-md text-xs sm:text-sm md:text-base text-center cursor-not-allowed";
                         }
                     }
                 }, 1000);
@@ -1131,7 +1160,7 @@
                 clearInterval(seqInterval);
                 seqIsRunning = false;
                 btn.innerText = "이어하기";
-                btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
+                btn.className = "w-20 md:w-28 py-2 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
             }
         }
 
@@ -1141,7 +1170,7 @@
             initSeqTimer();
             const btn = document.getElementById('btn-seq-toggle');
             btn.innerText = "시작";
-            btn.className = "w-20 sm:w-24 md:w-28 py-2 sm:py-2.5 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
+            btn.className = "w-20 md:w-28 py-2 md:py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-md transition transform active:scale-95 text-xs sm:text-sm md:text-base text-center";
         }
 
         // --- MP3 음악 플레이어 로직 ---
@@ -1419,7 +1448,7 @@
             if (playlist.length === 0) {
                 stopAudio();
                 audioElement.src = '';
-                initAudioPlayerDOM(); // 음원이 모두 제거되면 플레이어 바 제거
+                initAudioPlayerDOM();
             } else {
                 if (index === currentTrackIndex) {
                     currentTrackIndex = 0;
@@ -1503,12 +1532,10 @@
             currentFontSizeRem = parseFloat(sizeVal);
             const sizeStr = sizeVal + 'rem';
             
-            // 모바일일 때 화면 가로 폭을 넘치지 않으면서 슬라이더 조절이 정비례 반영되도록 clamp 적용
             const isMobile = isMobileDevice();
             let computedSize = sizeStr;
             if (isMobile) {
-                // 모바일에서는 vw와 rem을 결합하여 슬라이더로 자유롭게 확대/축소 가능
-                computedSize = `min(${sizeVal}rem, ${sizeVal * 2.5}vw)`;
+                computedSize = `min(${sizeVal}rem, ${sizeVal * 2.8}vw)`;
             }
 
             document.documentElement.style.setProperty('--clock-font-size', computedSize);
